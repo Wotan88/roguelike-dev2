@@ -1,5 +1,6 @@
 {
     "assetName": "floor:stone",
     "iconIndex": ".",
-    "foregroundColor": "#BBBBBB"
+    "foregroundColor": "#BBBBBB",
+    "collidable": false
 }

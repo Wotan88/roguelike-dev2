@@ -3,11 +3,15 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include <vector>
+#include <array>
 using std::string;
 using std::vector;
 
 namespace game {
 namespace gfx {
+
+static constexpr std::array<int, 10> COLORS_DIST = { 0xFFFFFF, 0xFFFF00, 0xFFAA00,
+        0xFF8800, 0xFF4400, 0xFF0000, 0xFF0044, 0xFF0088, 0xFF00AA, 0xFF00FF };
 
 // Game constants
 const int TICK_INTERVAL = 100;
@@ -87,11 +91,16 @@ public:
     // Polls SDL events
     void pollEvents();
 
+    void nextRenderMode();
+
     // Main render method
     void renderAll();
 
     // Draws level
     void renderLevel(int sx, int sy, int dx, int dy);
+
+    void renderEntitiesAndAdjacent(int dx);
+    void renderEntities();
 
     // Renders single character
     void renderBufferItem(int x, int y, const CharacterWrapper& c);
@@ -107,6 +116,7 @@ public:
 
     // Loads all resources
     void loadResources();
+
 private:
     // Tiles sprite sheet
     SpriteSheet* mTilesetTexture;
@@ -122,6 +132,7 @@ private:
     long mLastTick;
     // Color filter
     int mLastColor;
+    int mRenderMode;
 };
 
 }

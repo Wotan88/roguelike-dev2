@@ -8,6 +8,11 @@ game::level::AbstractGenerator::~AbstractGenerator() {
 }
 
 void game::level::AbstractGenerator::generate(
-        std::shared_ptr<game::level::Level>& l) {
+        game::level::Level* l) {
 
+}
+
+void game::level::AbstractGenerator::getSpawnPosition(int& x, int& y){
+    x = 0;
+    y = 0;
 }

@@ -8,7 +8,7 @@ game::level::gen::BoxGenerator::~BoxGenerator() {
 
 }
 
-void game::level::gen::BoxGenerator::generate(std::shared_ptr<Level>& l) {
+void game::level::gen::BoxGenerator::generate(Level* l) {
     string mWallTile = getProperty<string>("wall", "");
     string mFloorTile = getProperty<string>("floor", "");
     for (int x = 0; x < l->getWidth(); x++) {

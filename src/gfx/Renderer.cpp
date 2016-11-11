@@ -6,6 +6,7 @@
 
 game::gfx::Renderer::Renderer() :
         mBuffer(SCREEN_WIDTH, SCREEN_HEIGHT) {
+    mRenderMode = 0;
     mTilesetTexture = nullptr;
     mLastTick = 0;
     mLastColor = -1;
@@ -84,6 +85,7 @@ void game::gfx::Renderer::pollEvents() {
     if (time - mLastTick >= 250) {
         mLastTick = time;
 
+        //renderEntitiesAndAdjacent(2);
         renderAll();
     }
 }
@@ -109,6 +111,13 @@ void game::gfx::Renderer::renderBufferItem(int x, int y,
 }
 
 void game::gfx::Renderer::put(int x, int y, int c, int fg, int bg) {
+    const CharacterWrapper& cw = mBuffer(x, y);
+    if (c == -1)
+        c = cw.characterIndex;
+    if (fg == -1)
+        fg = cw.foregroundColor;
+    if (bg == -1)
+        bg = cw.backgroundColor;
     mBuffer(x, y) = CharacterWrapper { c, bg, fg };
 }
 
@@ -131,45 +140,127 @@ void game::gfx::Renderer::loadResources() {
     LOG(INFO)<< "Done";
 }
 
+void game::gfx::Renderer::nextRenderMode() {
+    mRenderMode = 1 - mRenderMode;
+}
+
 void game::gfx::Renderer::clear() {
     mBuffer.clear();
 }
 
+void game::gfx::Renderer::renderEntities() {
+    TIMED_FUNC(timerObj);
+    game::level::Level* level = GL;
+    game::level::Camera* cam = GC;
+    if (!level || !cam)
+        return;
+
+    int tx, ty;
+
+    for (auto entity : level->entities()) {
+        entity->getPosition(tx, ty);
+        cam->translatePoint(tx, ty, tx, ty);
+        if (tx < 0 || ty < 0 || tx >= SCREEN_WIDTH || ty >= SCREEN_HEIGHT)
+            continue;
+
+        put(tx, ty, entity->getIconIndex(), entity->getForegroundColor(), -1);
+    }
+}
+
+void game::gfx::Renderer::renderEntitiesAndAdjacent(int d) {
+    TIMED_FUNC(timerObj);
+    game::level::Level* level = GL;
+    game::level::Camera* cam = GC;
+    if (!level || !cam)
+        return;
+
+    int tx, ty;
+    for (auto entity : level->entities()) {
+        if (!entity) {
+            LOG(FATAL)<< "entity == nullptr!";
+        }
+        entity->getPosition(tx, ty);
+        cam->translatePoint(tx, ty, tx, ty);
+        if (tx < 0 || ty < 0 || tx >= SCREEN_WIDTH || ty >= SCREEN_HEIGHT)
+        continue;
+        renderLevel(tx-d, ty-d, tx+d,ty+d);
+    }
+
+    for (auto entity : level->entities()) {
+
+        entity->getPosition(tx, ty);
+        cam->translatePoint(tx, ty, tx, ty);
+        if (tx < 0 || ty < 0 || tx >= SCREEN_WIDTH || ty >= SCREEN_HEIGHT)
+            continue;
+
+        put(tx, ty, entity->getIconIndex(), entity->getForegroundColor(), -1);
+
+    }
+}
+
 void game::gfx::Renderer::renderLevel(int sx, int sy, int dx, int dy) {
     TIMED_FUNC(timerObj);
-    std::weak_ptr<game::level::Camera> c = GC;
-    std::weak_ptr<game::level::Level> l = GL;
-    if (auto level = l.lock()) {
-        if (auto cam = c.lock()) {
-            std::weak_ptr<game::level::AbstractTile> t;
-            int tx, ty;
+    game::level::Camera* cam = GC;
+    game::level::Level* level = GL;
+    game::level::AbstractTile* p;
+    int tx, ty;
 
-            int cx, cy;
-            cam->getPosition(cx, cy);
-            int ex, ey;
-            ex = cx + SCREEN_WIDTH - 25;
-            ey = cy + SCREEN_HEIGHT - 2;
+    int camx, camy;
+    cam->getPosition(camx, camy);
 
-            // Level bounds constraint
-            cx = std::max(cx, 0);
-            cy = std::max(cy, 0);
-            ex = std::min(ex, level->getWidth() - 1);
-            ey = std::min(ey, level->getHeight() - 1);
+    int cx, cy;
+    cx = camx + sx;
+    cy = camy + sy;
+    int ex, ey;
+    ex = camx + dx;
+    ey = camy + dy;
 
-            LOG(INFO)<< cx << ','<<cy<<','<<ex<<','<<ey;
+    // Level bounds constraint
+    cx = std::max(cx, 0);
+    cy = std::max(cy, 0);
+    ex = std::min(ex, level->getWidth() - 1);
+    ey = std::min(ey, level->getHeight() - 1);
 
-            for (int y = cy; y <= ey; y++) {
-                for (int x = cx; x <= ex; x++) {
-                    t = (*level)(x, y);
-                    cam->translatePoint(x, y, tx, ty);
+    LOG(INFO)<< cx << ','<<cy<<','<<ex<<','<<ey;
 
-                    if (auto p = t.lock()) {
-                        int fg = p->getForegroundColor(x, y, level);
-                        int bg = p->getBackgroundColor(x, y, level);
-                        int c = p->getIconIndex(x, y, level);
+    if (mRenderMode == 0) {
+        for (int y = cy; y <= ey; y++) {
+            for (int x = cx; x <= ex; x++) {
+                p = (*level)(x, y);
+                if (!p)
+                    continue;
 
-                        put(tx, ty, c, fg, bg);
-                    }
+                cam->translatePoint(x, y, tx, ty);
+                if (tx < 0 || ty < 0 || tx >= SCREEN_WIDTH
+                        || ty >= SCREEN_HEIGHT)
+                    continue;
+
+                int fg = p->getForegroundColor(x, y, level);
+                int bg = p->getBackgroundColor(x, y, level);
+                int c = p->getIconIndex(x, y, level);
+
+                put(tx, ty, c, fg, bg);
+            }
+        }
+    } else {
+        for (int y = cy; y <= ey; y++) {
+            for (int x = cx; x <= ex; x++) {
+                p = (*level)(x, y);
+                if (!p)
+                    continue;
+
+                cam->translatePoint(x, y, tx, ty);
+                if (tx < 0 || ty < 0 || tx >= SCREEN_WIDTH
+                        || ty >= SCREEN_HEIGHT)
+                    continue;
+                int fg = p->getForegroundColor(x, y, level);
+                int bg = p->getBackgroundColor(x, y, level);
+                int c = p->getIconIndex(x, y, level);
+                int dn = level->getPlayerDistance(x, y);
+                if (dn <= 9) {
+                    put(tx, ty, c, COLORS_DIST[dn], bg);
+                } else {
+                    put(tx, ty, c, fg, bg);
                 }
             }
         }

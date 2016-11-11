@@ -14,6 +14,7 @@ public:
 
     void translatePoint(int x0, int y0, int& x, int& y);
     void move(int x, int y);
+    void center(int x, int y);
 private:
     int mX, mY;
 };

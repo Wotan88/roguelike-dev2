@@ -14,7 +14,7 @@ public:
     // Destructor
     virtual ~BoxGenerator();
 
-    void generate(std::shared_ptr<Level>& l) override;
+    void generate(Level* l) override;
 private:
     string mFloorTile, mWallTile;
 };
@@ -44,7 +44,8 @@ public:
     DungeonGenerator();
     virtual ~DungeonGenerator();
 
-    void generate(std::shared_ptr<Level>& l) override;
+    void generate(Level* l) override;
+    void getSpawnPosition(int& x, int& y) override;
 private:
     char getTile(int x, int y) const;
     void setTile(int x, int y, char tile);
@@ -59,6 +60,7 @@ private:
     std::vector<char> mTiles;
     std::vector<Rect> mRooms;
     std::vector<Rect> mExits;
+    int mPsx, mPsy;
 };
 
 }

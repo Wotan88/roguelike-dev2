@@ -25,6 +25,8 @@ bool randomBool(double probability = 0.5) {
 game::level::gen::DungeonGenerator::DungeonGenerator() {
     mWidth = 0;
     mHeight = 0;
+    mPsx = 0;
+    mPsy = 0;
 }
 
 game::level::gen::DungeonGenerator::~DungeonGenerator() {
@@ -188,6 +190,10 @@ bool game::level::gen::DungeonGenerator::placeObject(char tile) {
     int y = randomInt(mRooms[r].y + 1, mRooms[r].y + mRooms[r].height - 2);
 
     if (getTile(x, y) == Floor) {
+        if (tile == UpStairs) {
+            mPsx = x;
+            mPsy = y;
+        }
         setTile(x, y, tile);
 
         mRooms.erase(mRooms.begin() + r);
@@ -277,7 +283,7 @@ bool game::level::gen::DungeonGenerator::makeCorridor(int x, int y,
     return false;
 }
 
-void game::level::gen::DungeonGenerator::generate(std::shared_ptr<Level>& l) {
+void game::level::gen::DungeonGenerator::generate(Level* l) {
     mWidth = l->getWidth();
     mHeight = l->getHeight();
     mTiles.reserve(mWidth * mHeight);
@@ -314,6 +320,8 @@ void game::level::gen::DungeonGenerator::generate(std::shared_ptr<Level>& l) {
     string floorTile = getProperty<string>("floor", "");
     string wallTile = getProperty<string>("wall", "");
     string doorTile = getProperty<string>("door", "");
+    string downstairsTile = getProperty<string>("downstairs", "");
+    string upstairsTile = getProperty<string>("upstairs", "");
 
     for (int y = 0; y < mHeight; y++) {
         for (int x = 0; x < mWidth; x++) {
@@ -330,6 +338,19 @@ void game::level::gen::DungeonGenerator::generate(std::shared_ptr<Level>& l) {
                 l->set(x, y, doorTile);
                 continue;
             }
+            if (t == '>') {
+                l->set(x, y, downstairsTile);
+                continue;
+            }
+            if (t == '<') {
+                l->set(x, y, upstairsTile);
+                continue;
+            }
         }
     }
+}
+
+void game::level::gen::DungeonGenerator::getSpawnPosition(int& x, int& y) {
+    x = mPsx;
+    y = mPsy;
 }

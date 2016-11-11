@@ -91,7 +91,7 @@ public:
     // Setter
     template<typename Value> void setProperty(const string& key,
             const Value&& value) {
-        properties.put(key, value);
+        properties.put(key, std::move(value));
     }
     template<typename Value> void setProperty(const string& key,
             const Value& value) {

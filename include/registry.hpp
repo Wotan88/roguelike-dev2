@@ -8,9 +8,9 @@ namespace game {
 namespace tileregistry {
 void init();
 int nextId();
-void bind(std::shared_ptr<game::level::AbstractTile> t);
-std::weak_ptr<game::level::AbstractTile> byId(int id);
-std::weak_ptr<game::level::AbstractTile> byName(const std::string& name);
+void bind(game::level::AbstractTile* t);
+game::level::AbstractTile* byId(int id);
+game::level::AbstractTile* byName(const std::string& name);
 }
 
 }

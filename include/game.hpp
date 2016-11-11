@@ -9,6 +9,7 @@
 #define GR game::Game::instance()->renderer()
 #define GL game::Game::instance()->currentLevel()
 #define GC game::Game::instance()->camera()
+#define GP game::Game::instance()->player()
 
 namespace game {
 
@@ -24,32 +25,50 @@ public:
     // Start method
     static void start();
 
+    void fullRender();
+
     // Returns renderer
     game::gfx::Renderer* renderer();
 
     // Returns current level
-    std::weak_ptr<game::level::Level> currentLevel();
+    game::level::Level* currentLevel();
 
-    std::weak_ptr<game::level::Camera> camera();
+    game::level::Camera* camera();
+
+    game::level::Player* player();
+
+    int state();
+
+    void updateCamera();
 
     // Event callback
     void sdlEvent(SDL_Event* e);
+
+    void nextDepth();
+    void prevDepth();
+
+    static constexpr int STATE_PLAYING = 1;
 private:
     // Private constructor
     Game();
     // Internal start method
     void startInternal();
 
+    void genLevel();
+
     // Instance variable
     static Game* mInstance;
     // Renderer
     game::gfx::Renderer* mRenderer;
     // Current level pointer
-    std::shared_ptr<game::level::Level> mCurrentLevel;
+    game::level::Level* mCurrentLevel;
     // Camera
-    std::shared_ptr<game::level::Camera> mCamera;
+    game::level::Camera* mCamera;
+    // Player
+    game::level::Player* mPlayer;
     // Holds game state
     bool mRunning;
+    int mCurrentDepth;
 };
 
 }

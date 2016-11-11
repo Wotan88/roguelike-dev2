@@ -2,6 +2,7 @@
 #include "general_utils.hpp"
 #include "structs.hpp"
 #include "registry.hpp"
+#include "tiles/all.hpp"
 
 #include <json.hpp>
 
@@ -42,13 +43,15 @@ void game::data::PropertyHolder::load(const nlohmann::json& json) {
     }
 }
 
-std::shared_ptr<game::level::AbstractTile> game::serialization::instantiateTileClass(
+game::level::AbstractTile* game::serialization::instantiateTileClass(
         const string& basename) {
-    return std::make_shared<game::level::AbstractTile>(
-            game::level::AbstractTile());
+    if (basename == "Door")
+        return new game::level::tile::Door();
+
+    return new game::level::AbstractTile();
 }
 
-std::shared_ptr<game::level::AbstractTile> game::serialization::loadTile(
+game::level::AbstractTile* game::serialization::loadTile(
         const string& filename) {
     LOG(DEBUG)<< filename;
     if (!game::util::fileExists(filename))
@@ -60,17 +63,21 @@ std::shared_ptr<game::level::AbstractTile> game::serialization::loadTile(
     string classname = "AbstractTile";
     if (!jsonData["class"].is_null()) {
         classname = jsonData["class"].get<string>();
-        jsonData.erase("class");
     }
 
-    if (jsonData["iconIndex"].is_string()) {
-        auto v = jsonData["iconIndex"].get<string>();
-        if (v.length() > 0) {
-            jsonData["iconIndex"] = (int)(v[0]);
+    jsonData["class"] = classname;
+
+    for (nlohmann::json::iterator it = jsonData.begin(); it != jsonData.end(); it++) {
+        // Starts with icon and is a string
+        if (it.value().is_string() && it.key().find("icon") == 0){
+            auto v = it.value().get<string>();
+            if (v.length() == 1){
+                jsonData[it.key()] = (int)(v[0]);
+            }
         }
     }
 
-    std::shared_ptr<game::level::AbstractTile> tObj = instantiateTileClass(
+    game::level::AbstractTile* tObj = instantiateTileClass(
             classname);
     tObj->load(jsonData);
 

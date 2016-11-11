@@ -26,6 +26,8 @@ bool fileExists(const string& path);
 int parseColor(const string& str);
 
 vector<string> listDir(const string& str);
+
+int shiftKey(int k);
 }
 }
 

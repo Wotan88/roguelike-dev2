@@ -4,11 +4,10 @@
 
 static int mLastId = 0;
 static map<string, int> mIdBindings;
-static vector<std::shared_ptr<game::level::AbstractTile>> mTiles(1024);
+static vector<game::level::AbstractTile*> mTiles(1024);
 
-std::weak_ptr<game::level::AbstractTile> game::tileregistry::byId(int id) {
-    std::weak_ptr<game::level::AbstractTile> t(mTiles[id]);
-    return t;
+game::level::AbstractTile* game::tileregistry::byId(int id) {
+    return mTiles[id];
 }
 
 //std::vector<std::shared_ptr<game::level::AbstractTile>>::iterator t =
@@ -23,21 +22,19 @@ std::weak_ptr<game::level::AbstractTile> game::tileregistry::byId(int id) {
 //    return null_tile_ptr;
 //};
 
-std::weak_ptr<game::level::AbstractTile> game::tileregistry::byName(
-        const std::string& name) {
-    static std::weak_ptr<game::level::AbstractTile> null_tile_ptr;
+game::level::AbstractTile* game::tileregistry::byName(const std::string& name) {
     map<string, int>::iterator it = mIdBindings.find(name);
     if (it == mIdBindings.end()) {
-        return null_tile_ptr;
+        return nullptr;
     }
-    return std::weak_ptr<game::level::AbstractTile>(mTiles[(*it).second]);
+    return mTiles[(*it).second];
 }
 
 int game::tileregistry::nextId() {
     return ++mLastId;
 }
 
-void game::tileregistry::bind(std::shared_ptr<game::level::AbstractTile> t) {
+void game::tileregistry::bind(game::level::AbstractTile* t) {
     if (!t)
         return;
     std::string assetName = t->getProperty<string>("assetName", "");
@@ -47,8 +44,8 @@ void game::tileregistry::bind(std::shared_ptr<game::level::AbstractTile> t) {
     LOG(INFO)<< "Registering tile "<<assetName;
 
     auto t1 = game::tileregistry::byName(assetName);
-    if (auto p = t1.lock()) {
-        LOG(FATAL)<< "game::tileregistry::registerTile(): asset name "<< assetName << " is already used by " << assetName << ":"<<p->getId();
+    if (t1) {
+        LOG(FATAL)<< "game::tileregistry::registerTile(): asset name "<< assetName << " is already used by " << assetName << ":"<<t1->getId();
     } else {
         LOG(DEBUG) << "auto p = t1.lock() == nullptr";
     }

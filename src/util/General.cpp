@@ -53,3 +53,15 @@ std::string game::util::join(const std::string& p1, const std::string& p2) {
     } else
         return p1 + p2;
 }
+
+int game::util::shiftKey(int k){
+    LOG(DEBUG)<< (char)k;
+//    if (isalpha(k)){
+//        return toupper(k);
+//    }
+    switch (k){
+    case '.': return '>';
+    case ',': return '<';
+    default: return k;
+    }
+}

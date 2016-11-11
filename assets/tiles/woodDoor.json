@@ -1,5 +1,7 @@
 {
     "assetName": "door:wood",
-    "iconIndex": "+",
-    "foregroundColor": "#BBBBBB"
+    "foregroundColor": "#BBBBBB",
+    "class": "Door",
+    "iconClosed": "+",
+    "iconOpen": "-"
 }

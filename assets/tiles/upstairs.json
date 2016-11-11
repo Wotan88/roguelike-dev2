@@ -1,0 +1,7 @@
+{
+    "assetName": "stairs:up",
+    "iconIndex": "<",
+    "foregroundColor": "#BBBBBB",
+    "collidable": false,
+    "upstairs": true
+}
