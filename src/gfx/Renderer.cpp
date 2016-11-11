@@ -1,5 +1,6 @@
 #include "gfx.hpp"
 #include "game.hpp"
+#include "general_utils.hpp"
 
 #include <SDL2/SDL_image.h>
 #include <easylogging++.h>
@@ -230,12 +231,18 @@ void game::gfx::Renderer::renderLevel(int sx, int sy, int dx, int dy) {
                 if (!p)
                     continue;
 
+                int vis = level->getTileVisibility(x, y);
+                if (!vis)
+                    continue;
+
                 cam->translatePoint(x, y, tx, ty);
                 if (tx < 0 || ty < 0 || tx >= SCREEN_WIDTH
                         || ty >= SCREEN_HEIGHT)
                     continue;
 
                 int fg = p->getForegroundColor(x, y, level);
+                if (vis == 2)
+                    fg = game::util::darken(fg, 4);
                 int bg = p->getBackgroundColor(x, y, level);
                 int c = p->getIconIndex(x, y, level);
 
@@ -249,11 +256,17 @@ void game::gfx::Renderer::renderLevel(int sx, int sy, int dx, int dy) {
                 if (!p)
                     continue;
 
+                int vis = level->getTileVisibility(x, y);
+                if (!vis)
+                    continue;
+
                 cam->translatePoint(x, y, tx, ty);
                 if (tx < 0 || ty < 0 || tx >= SCREEN_WIDTH
                         || ty >= SCREEN_HEIGHT)
                     continue;
                 int fg = p->getForegroundColor(x, y, level);
+                if (vis == 2)
+                    fg = game::util::darken(fg, 4);
                 int bg = p->getBackgroundColor(x, y, level);
                 int c = p->getIconIndex(x, y, level);
                 int dn = level->getPlayerDistance(x, y);

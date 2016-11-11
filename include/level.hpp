@@ -73,12 +73,14 @@ public:
     void onPlayerDown(int x, int y);
     void getDownExitPos(int& x, int& y);
     void getUpExitPos(int& x, int& y);
+    int getTileVisibility(int x, int y);
 
     const vector<game::level::AbstractEntity*>& entities();
 
     static constexpr int HAS_ENTITY_FLAG = 1;
 private:
     void dijkstraGen(int x, int y, int v);
+    void castFOVRay(int sx, int sy, float angle, int val);
 
     int mDsx, mDsy;
     int mUsx, mUsy;
@@ -95,6 +97,7 @@ private:
     vector<int> mMetadata;
     Player* mPlayer;
     int mLastPlayerX, mLastPlayerY;
+    vector<int> mVisibility;
 };
 
 // Abstract generator interface

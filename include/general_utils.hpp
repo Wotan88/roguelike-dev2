@@ -28,6 +28,8 @@ int parseColor(const string& str);
 vector<string> listDir(const string& str);
 
 int shiftKey(int k);
+
+int darken(int col, int v);
 }
 }
 

@@ -54,14 +54,25 @@ std::string game::util::join(const std::string& p1, const std::string& p2) {
         return p1 + p2;
 }
 
-int game::util::shiftKey(int k){
+int game::util::shiftKey(int k) {
     LOG(DEBUG)<< (char)k;
 //    if (isalpha(k)){
 //        return toupper(k);
 //    }
-    switch (k){
-    case '.': return '>';
-    case ',': return '<';
-    default: return k;
+    switch (k) {
+        case '.': return '>';
+        case ',': return '<';
+        default: return k;
     }
+}
+
+int game::util::darken(int col, int v) {
+    int r = (col >> 16) & 0xFF;
+    int g = (col >> 8) & 0xFF;
+    int b = col & 0xFF;
+    float p = (10 - v) / 10.0;
+    r = (int) (r * p);
+    g = (int) (g * p);
+    b = (int) (b * p);
+    return (r << 16) | (g << 8) | (b);
 }

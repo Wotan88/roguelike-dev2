@@ -10,6 +10,7 @@ game::level::Level::Level(int width, int height) :
     mPresenceFlags = vector<int>(width * height);
     mDijkstraMap = vector<int>(width * height);
     mMetadata = vector<int>(width * height);
+    mVisibility = vector<int>(width * height);
     mLastPlayerX = -1;
     mLastPlayerY = -1;
     mPlayer = nullptr;
@@ -63,12 +64,16 @@ void game::level::Level::onPlayerUp(int x, int y) {
             });
 }
 
-void game::level::Level::getDownExitPos(int& x, int& y){
+int game::level::Level::getTileVisibility(int x, int y) {
+    return mVisibility[x + y * mWidth];
+}
+
+void game::level::Level::getDownExitPos(int& x, int& y) {
     x = mDsx;
     y = mDsy;
 }
 
-void game::level::Level::getUpExitPos(int& x, int& y){
+void game::level::Level::getUpExitPos(int& x, int& y) {
     x = mUsx;
     y = mUsy;
 }
@@ -151,7 +156,45 @@ void game::level::Level::dijkstraGen(int ox, int oy, int v) {
     }
 }
 
+void game::level::Level::castFOVRay(int sx, int sy, float angle, int val) {
+    int px, py;
+    px = sx;
+    py = sy;
+    float rx, ry;
+    rx = sx + 0.5;
+    ry = sy + 0.5;
+    float dx, dy;
+    for (int i = 0; i < val; i++) {
+        dx = std::cos(angle);
+        dy = std::sin(angle);
+        rx += dx;
+        ry += dy;
+        px = (int) rx;
+        py = (int) ry;
+        AbstractTile* t = (*this)(px, py);
+        if (t) {
+            if (t->isCollidable(px, py, this)) {
+                mVisibility[px + py * mWidth] = 1;
+                break;
+            } else {
+                mVisibility[px + py * mWidth] = 1;
+                continue;
+            }
+        } else
+            break;
+    }
+}
+
 void game::level::Level::update() {
+    std::replace_if(mVisibility.begin(), mVisibility.end(), [](int& v)-> bool {
+        return v != 0;
+    }, 2);
+    int px, py;
+    mPlayer->getPosition(px, py);
+    for (int i = 0; i < 360; i++) {
+        castFOVRay(px, py, i, 10);
+    }
+
     if (mPlayer
             && (mPlayer->x() != mLastPlayerX || mPlayer->y() != mLastPlayerY)) {
         int px, py;

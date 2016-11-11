@@ -82,6 +82,7 @@ void game::Game::nextDepth() {
         mCurrentLevel = l;
 
         mCamera->center(px, py);
+        mCurrentLevel->update();
     } else {
         mCurrentLevel->onPlayerDown(x, y);
         mCurrentDepth++;
@@ -94,6 +95,7 @@ void game::Game::nextDepth() {
         mCamera->center(px, py);
 
         level::depths::push(mCurrentLevel);
+        mCurrentLevel->update();
     }
     fullRender();
 }
@@ -112,6 +114,7 @@ void game::Game::prevDepth() {
         mCurrentLevel->addEntity(mPlayer);
         mCurrentDepth--;
         mCamera->center(px, py);
+        mCurrentLevel->update();
 
         fullRender();
     }
@@ -140,8 +143,14 @@ void game::Game::startInternal() {
 
     genLevel();
 
-    mRunning = true;
+    mCurrentLevel->update();
+    int px, py;
+    mPlayer->getPosition(px, py);
+    mCamera->center(px, py);
+
     fullRender();
+
+    mRunning = true;
     while (mRunning) {
         mRenderer->pollEvents();
     }
