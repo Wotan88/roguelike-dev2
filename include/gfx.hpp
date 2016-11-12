@@ -102,6 +102,8 @@ public:
     void renderEntitiesAndAdjacent(int dx);
     void renderEntities();
 
+    void renderGui();
+
     // Renders single character
     void renderBufferItem(int x, int y, const CharacterWrapper& c);
 

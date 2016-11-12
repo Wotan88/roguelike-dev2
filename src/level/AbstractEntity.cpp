@@ -103,3 +103,23 @@ void game::level::AbstractEntity::onAttackedBy(int dmg, AbstractEntity* src) {
 
 void game::level::AbstractEntity::onTick(int n) {
 }
+
+void game::level::AbstractEntity::onAttributesChanged() {
+
+}
+
+void game::level::AbstractEntity::setAttribute(const string& name, int val) {
+    setProperty<int>("attr_" + name, val);
+    onAttributesChanged();
+}
+
+void game::level::AbstractEntity::updateAttribute(const string& name,
+        int delta) {
+    int oldval = getProperty<int>(name, 0);
+    setProperty<int>("attr_" + name, oldval + delta);
+    onAttributesChanged();
+}
+
+int game::level::AbstractEntity::getAttribute(const string& name) {
+    return getProperty<int>("attr_" + name, -1);
+}

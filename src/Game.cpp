@@ -23,6 +23,8 @@ game::Game::Game() {
     mCurrentDepth = 0;
     // TODO: move to level
     mTickNumber = 0;
+    mState = 0;
+    mCurrentGui = nullptr;
 }
 
 game::Game::~Game() {
@@ -127,7 +129,7 @@ void game::Game::prevDepth() {
 void game::Game::endTurn() {
     int php = mPlayer->getProperty<int>("hp", -1);
     LOG(DEBUG)<< php;
-    if (php <= 0){
+    if (php <= 0) {
         LOG(DEBUG)<< "PLAYER DIED";
         mRunning = false;
         return;
@@ -144,32 +146,49 @@ void game::Game::endTurn() {
 
 void game::Game::fullRender() {
     mRenderer->clear();
-    mRenderer->renderLevel(0, 0, game::gfx::SCREEN_WIDTH - 25,
-            game::gfx::SCREEN_HEIGHT);
-    mRenderer->renderEntities();
-    mRenderer->renderHud();
+    if (mState == STATE_PLAYING) {
+        mRenderer->renderLevel(0, 0, game::gfx::SCREEN_WIDTH - 25,
+                game::gfx::SCREEN_HEIGHT);
+        mRenderer->renderEntities();
+        mRenderer->renderHud();
+    } else {
+        mRenderer->renderGui();
+    }
     mRenderer->renderAll();
+}
+
+void game::Game::initGame() {
+
+}
+
+void game::Game::generatePlayerAndStart(const vector<std::pair<string, int>>& attrs) {
+    mCurrentLevel = new level::Level(200, 120);
+    level::depths::push(mCurrentLevel);
+    mCamera = new level::Camera(0, 0);
+    mPlayer = new level::Player(mCurrentLevel);
+    game::serialization::loadAllTiles("assets/tiles/");
+    genLevel();
+    mCurrentLevel->update();
+    int px, py;
+    mPlayer->getPosition(px, py);
+
+    for (auto it: attrs){
+        mPlayer->setAttribute(it.first, it.second);
+    }
+
+    mCamera->center(px, py);
+
+    mCurrentGui = nullptr;
+    mState = STATE_PLAYING;
+
+    fullRender();
 }
 
 void game::Game::startInternal() {
     mRenderer = new gfx::Renderer();
     mRenderer->loadResources();
 
-    mCurrentLevel = new level::Level(200, 120);
-    level::depths::push(mCurrentLevel);
-
-    mCamera = new level::Camera(0, 0);
-
-    mPlayer = new level::Player(mCurrentLevel);
-
-    game::serialization::loadAllTiles("assets/tiles/");
-
-    genLevel();
-
-    mCurrentLevel->update();
-    int px, py;
-    mPlayer->getPosition(px, py);
-    mCamera->center(px, py);
+    mCurrentGui = new game::gui::EmbarkGUI();
 
     fullRender();
 
@@ -184,7 +203,7 @@ void game::Game::startInternal() {
 }
 
 int game::Game::state() {
-    return STATE_PLAYING;
+    return mState;
 }
 
 void game::Game::updateCamera() {
@@ -243,6 +262,74 @@ void game::Game::moveControl(int dx, int dy) {
     }
 }
 
+void game::Game::gameControl(SDL_Keysym* k) {
+    int scancode = k->scancode;
+    int ch = k->sym;
+    if (k->mod & KMOD_SHIFT) {
+        ch = game::util::shiftKey(ch);
+    }
+
+    LOG(DEBUG)<<"Keydown: "<<scancode;
+
+    int px, py;
+    mPlayer->getPosition(px, py);
+
+    // TODO: input handler
+    if (ch == SDLK_KP_0) {
+        mRenderer->nextRenderMode();
+        fullRender();
+        return;
+    }
+    if (ch == SDLK_GREATER) {
+        LOG(DEBUG)<< "Downstairs key";
+        level::AbstractTile* t = (*mCurrentLevel)(px, py);
+
+        if (t && t->isDownstairs(px, py, mCurrentLevel)) {
+            LOG(DEBUG)<< "Next depth";
+            nextDepth();
+        }
+        return;
+    }
+    if (ch == SDLK_LESS) {
+        level::AbstractTile* t = (*mCurrentLevel)(px, py);
+
+        if (t && t->isUpstairs(px, py, mCurrentLevel)) {
+            LOG(DEBUG)<< "Prev depth";
+            prevDepth();
+        }
+        return;
+    }
+
+    switch (ch) {
+    case SDLK_KP_1:
+        moveControl(-1, 1);
+        return;
+    case SDLK_KP_2:
+        moveControl(0, 1);
+        return;
+    case SDLK_KP_3:
+        moveControl(1, 1);
+        return;
+    case SDLK_KP_4:
+        moveControl(-1, 0);
+        return;
+    case SDLK_KP_6:
+        moveControl(1, 0);
+        return;
+    case SDLK_KP_7:
+        moveControl(-1, -1);
+        return;
+    case SDLK_KP_8:
+        moveControl(0, -1);
+        return;
+    case SDLK_KP_9:
+        moveControl(1, -1);
+        return;
+    }
+
+    return;
+}
+
 void game::Game::sdlEvent(SDL_Event* e) {
     if (e->type == SDL_QUIT) {
         LOG(DEBUG)<< "Quit event received";
@@ -251,71 +338,13 @@ void game::Game::sdlEvent(SDL_Event* e) {
         return;
     }
     if (e->type == SDL_KEYDOWN) {
-        int scancode = e->key.keysym.scancode;
-        int ch = e->key.keysym.sym;
-        if (e->key.keysym.mod & KMOD_SHIFT) {
-            ch = game::util::shiftKey(ch);
-        }
-
-        LOG(DEBUG)<<"Keydown: "<<scancode;
-
-        int px, py;
-        mPlayer->getPosition(px, py);
-
-        // TODO: input handler
-        if (ch == SDLK_KP_0) {
-            mRenderer->nextRenderMode();
-            fullRender();
-            return;
-        }
-        if (ch == SDLK_GREATER) {
-            LOG(DEBUG)<< "Downstairs key";
-            level::AbstractTile* t = (*mCurrentLevel)(px, py);
-
-            if (t && t->isDownstairs(px, py, mCurrentLevel)) {
-                LOG(DEBUG)<< "Next depth";
-                nextDepth();
+        if (mState == STATE_PLAYING) {
+            gameControl(&(e->key.keysym));
+        } else {
+            if (mCurrentGui) {
+                mCurrentGui->onKeyDown(e->key.keysym.scancode, e->key.keysym.sym);
             }
-            return;
         }
-        if (ch == SDLK_LESS) {
-            level::AbstractTile* t = (*mCurrentLevel)(px, py);
-
-            if (t && t->isUpstairs(px, py, mCurrentLevel)) {
-                LOG(DEBUG)<< "Prev depth";
-                prevDepth();
-            }
-            return;
-        }
-
-        switch (ch) {
-            case SDLK_KP_1:
-            moveControl(-1, 1);
-            return;
-            case SDLK_KP_2:
-            moveControl(0, 1);
-            return;
-            case SDLK_KP_3:
-            moveControl(1, 1);
-            return;
-            case SDLK_KP_4:
-            moveControl(-1, 0);
-            return;
-            case SDLK_KP_6:
-            moveControl(1, 0);
-            return;
-            case SDLK_KP_7:
-            moveControl(-1, -1);
-            return;
-            case SDLK_KP_8:
-            moveControl(0, -1);
-            return;
-            case SDLK_KP_9:
-            moveControl(1, -1);
-            return;
-        }
-
-        return;
     }
 }
 
@@ -333,4 +362,8 @@ game::level::Camera* game::Game::camera() {
 
 game::level::Player* game::Game::player() {
     return mPlayer;
+}
+
+game::gui::AbstractGUI* game::Game::gui() {
+    return mCurrentGui;
 }

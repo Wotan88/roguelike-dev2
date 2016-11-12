@@ -228,6 +228,14 @@ void game::gfx::Renderer::renderEntitiesAndAdjacent(int d) {
     }
 }
 
+void game::gfx::Renderer::renderGui(){
+    auto gui = G->gui();
+    if (!gui)
+        return;
+
+    gui->render();
+}
+
 void game::gfx::Renderer::renderLevel(int sx, int sy, int dx, int dy) {
     TIMED_FUNC(timerObj);
     game::level::Camera* cam = GC;

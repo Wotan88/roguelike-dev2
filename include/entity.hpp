@@ -28,6 +28,12 @@ public:
 
     virtual void onTick(int tickN);
 
+    virtual void onAttributesChanged();
+
+    void setAttribute(const string& name, int val);
+    void updateAttribute(const string& name, int delta);
+    int getAttribute(const string& name);
+
     int x();
     int y();
     void getPosition(int& x, int& y);

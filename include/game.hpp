@@ -3,6 +3,10 @@
 #include "gfx.hpp"
 #include "level.hpp"
 #include "camera.hpp"
+#include "gui.hpp"
+
+#include <vector>
+using std::vector;
 
 // Macros for easier game object access
 #define G game::Game::instance()
@@ -27,6 +31,8 @@ public:
 
     void fullRender();
 
+    void generatePlayerAndStart(const vector<std::pair<string, int>>& attrs);
+
     // Returns renderer
     game::gfx::Renderer* renderer();
 
@@ -36,6 +42,8 @@ public:
     game::level::Camera* camera();
 
     game::level::Player* player();
+
+    game::gui::AbstractGUI* gui();
 
     int state();
 
@@ -56,9 +64,11 @@ private:
     // Internal start method
     void startInternal();
 
+    void initGame();
     void genLevel();
 
     void moveControl(int dx, int dy);
+    void gameControl(SDL_Keysym* k);
 
     // Instance variable
     static Game* mInstance;
@@ -70,7 +80,10 @@ private:
     game::level::Camera* mCamera;
     // Player
     game::level::Player* mPlayer;
+
+    game::gui::AbstractGUI* mCurrentGui;
     // Holds game state
+    int mState;
     bool mRunning;
     int mCurrentDepth;
     int mTickNumber;
