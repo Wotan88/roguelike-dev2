@@ -64,6 +64,7 @@ bool game::gui::EmbarkGUI::onKeyDown(int sc, int ch) {
 
 void game::gui::EmbarkGUI::render() {
     auto r = GR;
+    r->disableRenderTicking();
 
     r->fill(1, 1, gfx::SCREEN_WIDTH - 1, gfx::SCREEN_HEIGHT - 1, ' ', 0, 0xCFCFCF);
 

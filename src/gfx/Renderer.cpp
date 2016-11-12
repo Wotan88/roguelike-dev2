@@ -12,6 +12,7 @@ game::gfx::Renderer::Renderer() :
     mTilesetTexture = nullptr;
     mLastTick = 0;
     mLastColor = -1;
+    mRenderTick = true;
 
     LOG(INFO)<< "Initializing SDL";
     // Initialize SDL
@@ -87,8 +88,16 @@ void game::gfx::Renderer::pollEvents() {
     if (time - mLastTick >= 250) {
         mLastTick = time;
 
+        if (mRenderTick)
         renderAll();
     }
+}
+
+void game::gfx::Renderer::disableRenderTicking(){
+    mRenderTick = false;
+}
+void game::gfx::Renderer::enableRenderTicking(){
+    mRenderTick = true;
 }
 
 void game::gfx::Renderer::renderHud() {
@@ -228,10 +237,10 @@ void game::gfx::Renderer::renderEntitiesAndAdjacent(int d) {
     }
 }
 
-void game::gfx::Renderer::renderGui(){
+void game::gfx::Renderer::renderGui() {
     auto gui = G->gui();
     if (!gui)
-        return;
+    return;
 
     gui->render();
 }

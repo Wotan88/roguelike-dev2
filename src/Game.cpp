@@ -181,6 +181,7 @@ void game::Game::generatePlayerAndStart(const vector<std::pair<string, int>>& at
     mCurrentGui = nullptr;
     mState = STATE_PLAYING;
 
+    mRenderer->enableRenderTicking();
     fullRender();
 }
 

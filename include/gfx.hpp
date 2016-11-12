@@ -114,6 +114,9 @@ public:
 
     void clear();
 
+    void disableRenderTicking();
+    void enableRenderTicking();
+
     // Returns SDL renderer object
     SDL_Renderer* sdlRenderer();
 
@@ -136,6 +139,7 @@ private:
     // Color filter
     int mLastColor;
     int mRenderMode;
+    bool mRenderTick;
 };
 
 }
