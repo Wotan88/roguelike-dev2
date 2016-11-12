@@ -192,6 +192,21 @@ void game::Game::updateCamera() {
     fullRender();
 }
 
+void game::Game::moveControl(int dx, int dy) {
+    int px, py;
+    mPlayer->getPosition(px, py);
+    if (mPlayer->checkMove(dx, dy)) {
+        mPlayer->move(dx, dy);
+        mCurrentLevel->update();
+        updateCamera();
+    } else {
+        if (mPlayer->onCollideTile(px + dx, py + dy)) {
+            mCurrentLevel->update();
+            updateCamera();
+        }
+    }
+}
+
 void game::Game::sdlEvent(SDL_Event* e) {
     if (e->type == SDL_QUIT) {
         LOG(DEBUG)<< "Quit event received";
@@ -237,56 +252,30 @@ void game::Game::sdlEvent(SDL_Event* e) {
             return;
         }
 
-        if (ch == SDLK_KP_4) {
-            if (mPlayer->checkMove(-1, 0)) {
-                mPlayer->move(-1, 0);
-                mCurrentLevel->update();
-                updateCamera();
-            } else {
-                if (mPlayer->onCollideTile(px-1, py)) {
-                    mCurrentLevel->update();
-                    updateCamera();
-                }
-            }
+        switch (ch) {
+            case SDLK_KP_1:
+            moveControl(-1, 1);
             return;
-        }
-        if (ch == SDLK_KP_6) {
-            if (mPlayer->checkMove(1, 0)) {
-                mPlayer->move(1, 0);
-                mCurrentLevel->update();
-                updateCamera();
-            } else {
-                if (mPlayer->onCollideTile(px+1, py)) {
-                    mCurrentLevel->update();
-                    updateCamera();
-                }
-            }
+            case SDLK_KP_2:
+            moveControl(0, 1);
             return;
-        }
-        if (ch == SDLK_KP_2) {
-            if (mPlayer->checkMove(0, 1)) {
-                mPlayer->move(0, 1);
-                mCurrentLevel->update();
-                updateCamera();
-            } else {
-                if (mPlayer->onCollideTile(px, py+1)) {
-                    mCurrentLevel->update();
-                    updateCamera();
-                }
-            }
+            case SDLK_KP_3:
+            moveControl(1, 1);
             return;
-        }
-        if (ch == SDLK_KP_8) {
-            if (mPlayer->checkMove(0, -1)) {
-                mPlayer->move(0, -1);
-                mCurrentLevel->update();
-                updateCamera();
-            } else {
-                if (mPlayer->onCollideTile(px, py-1)) {
-                    mCurrentLevel->update();
-                    updateCamera();
-                }
-            }
+            case SDLK_KP_4:
+            moveControl(-1, 0);
+            return;
+            case SDLK_KP_6:
+            moveControl(1, 0);
+            return;
+            case SDLK_KP_7:
+            moveControl(-1, -1);
+            return;
+            case SDLK_KP_8:
+            moveControl(0, -1);
+            return;
+            case SDLK_KP_9:
+            moveControl(1, -1);
             return;
         }
 

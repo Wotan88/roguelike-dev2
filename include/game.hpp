@@ -56,6 +56,8 @@ private:
 
     void genLevel();
 
+    void moveControl(int dx, int dy);
+
     // Instance variable
     static Game* mInstance;
     // Renderer
