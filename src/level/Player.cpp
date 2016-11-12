@@ -3,6 +3,7 @@
 game::level::Player::Player(Level* l) :
         AbstractEntity(l) {
     setProperty<string>("class", "Player");
+    setProperty<int>("hp", 20);
 }
 
 game::level::Player::~Player() {

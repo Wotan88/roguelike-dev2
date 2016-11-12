@@ -61,19 +61,22 @@ public:
     // Returns struct with information about tile
     AbstractTile* operator()(int x, int y);
     int getMeta(int x, int y);
-    // Sets tile
-    void set(int x, int y, const string& name);
-    void setMeta(int x, int y, int m);
     bool isCollidable(int x, int y);
     int getPlayerDistance(int x, int y);
     AbstractEntity* getEntityAt(int x, int y);
-    void addEntity(AbstractEntity* e);
-    void update();
-    void onPlayerUp(int x, int y);
-    void onPlayerDown(int x, int y);
     void getDownExitPos(int& x, int& y);
     void getUpExitPos(int& x, int& y);
     int getTileVisibility(int x, int y);
+    // Sets tile
+    void set(int x, int y, const string& name);
+    void setMeta(int x, int y, int m);
+    void spawn(int x, int y, const string& name);
+    void addEntity(AbstractEntity* e);
+
+    void update();
+    void onPlayerUp(int x, int y);
+    void onPlayerDown(int x, int y);
+    void onEntityMoved(int sx, int sy, int dx, int dy);
 
     const vector<game::level::AbstractEntity*>& entities();
 

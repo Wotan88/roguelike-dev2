@@ -31,13 +31,22 @@ void game::level::AbstractEntity::getPosition(int& x, int& y) {
 }
 
 void game::level::AbstractEntity::setPosition(int x, int y) {
+    int px, py;
+    px = mX;
+    py = mY;
     mX = x;
     mY = y;
+    if (mLevel) {
+        mLevel->onEntityMoved(px, py, mX, mY);
+    }
 }
 
 void game::level::AbstractEntity::move(int dx, int dy) {
     mX += dx;
     mY += dy;
+    if (mLevel) {
+        mLevel->onEntityMoved(mX - dx, mY - dy, mX, mY);
+    }
 }
 
 bool game::level::AbstractEntity::checkMove(int dx, int dy) {
@@ -48,10 +57,15 @@ bool game::level::AbstractEntity::checkMove(int dx, int dy) {
             || ny >= mLevel->getHeight())
         return false;
 
+    AbstractEntity* e = mLevel->getEntityAt(nx, ny);
+    if (e)
+        return false;
+
     AbstractTile* t = (*mLevel)(nx, ny);
 
     if (!t)
         return false;
+
     return !t->isCollidable(nx, ny, mLevel);
 }
 
@@ -59,6 +73,21 @@ bool game::level::AbstractEntity::onCollideTile(int x, int y) {
     return false;
 }
 
-void game::level::AbstractEntity::setLevel(Level* l){
+void game::level::AbstractEntity::setLevel(Level* l) {
     mLevel = l;
+}
+
+bool game::level::AbstractEntity::canAttack(int dx, int dy) {
+    AbstractEntity* e = mLevel->getEntityAt(dx, dy);
+    return e != nullptr;
+}
+
+void game::level::AbstractEntity::onAttackedBy(int dmg, AbstractEntity* src) {
+    int hp = this->getProperty<int>("hp", -1);
+    if (hp != -1){
+        this->setProperty<int>("hp", hp - dmg);
+    }
+}
+
+void game::level::AbstractEntity::onTick(int n) {
 }

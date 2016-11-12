@@ -3,7 +3,7 @@ CXXSources:=$(shell find src/ -name *.cpp -type f)
 
 # Output
 CXXObjects:=$(patsubst src/%.cpp,build/%.o,$(CXXSources))
-OutputDirs:=build/ build/level/ build/level/gen/ build/level/tile/ build/gfx/ build/assets/ build/util/
+OutputDirs:=build/ build/level/ build/level/gen/ build/level/tile/ build/level/entity/ build/gfx/ build/assets/ build/util/
 
 # Third-party
 ThirdPartyObjects:=

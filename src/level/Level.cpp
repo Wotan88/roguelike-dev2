@@ -112,7 +112,10 @@ const vector<game::level::AbstractEntity*>& game::level::Level::entities() {
 }
 
 game::level::AbstractEntity* game::level::Level::getEntityAt(int x, int y) {
-    if (!(mPresenceFlags[x + y * mWidth] & HAS_ENTITY_FLAG)) {
+    if (x < 0 || y < 0 || x >= mWidth || y >= mHeight)
+        return nullptr;
+    int f = mPresenceFlags[x + y * mWidth] & HAS_ENTITY_FLAG;
+    if (!(f)) {
         return nullptr;
     } else {
         vector<AbstractEntity*>::iterator it = std::find_if(
@@ -194,17 +197,12 @@ void game::level::Level::update() {
     for (int i = 0; i < 360; i++) {
         castFOVRay(px, py, i, 10);
     }
-
-    if (mPlayer
-            && (mPlayer->x() != mLastPlayerX || mPlayer->y() != mLastPlayerY)) {
+    {
         int px, py;
         mPlayer->getPosition(px, py);
         std::fill(mDijkstraMap.begin(), mDijkstraMap.end(), 1000000);
 
         dijkstraGen(px, py, 0);
-
-        mLastPlayerX = px;
-        mLastPlayerY = py;
     }
 }
 
@@ -215,11 +213,32 @@ void game::level::Level::addEntity(AbstractEntity* e) {
     LOG(DEBUG)<< "Adding entity "<<e;
     int x, y;
     e->getPosition(x, y);
+    LOG(DEBUG)<< x << ", " << y;
     mPresenceFlags[x + y * mWidth] |= HAS_ENTITY_FLAG;
+
+    LOG(DEBUG)<< mPresenceFlags[x + y * mWidth];
 
     if (e->getProperty<string>("class", "") == "Player")
         mPlayer = (Player*) e;
 
     e->setLevel(this);
     mEntities.push_back(e);
+}
+
+void game::level::Level::spawn(int x, int y, const string& name) {
+    AbstractEntity* e = game::entityregistry::byName(name);
+    if (e) {
+        e->setPosition(x, y);
+        addEntity(e);
+    }
+}
+
+void game::level::Level::onEntityMoved(int sx, int sy, int dx, int dy) {
+    if (sx >= 0 && sy >= 0 && sx < mWidth && sy < mHeight
+            && (mPresenceFlags[sx + sy * mWidth] & HAS_ENTITY_FLAG)) {
+        mPresenceFlags[sx + sy * mWidth] ^= HAS_ENTITY_FLAG;
+    }
+    if (dx >= 0 && dy >= 0 && dx < mWidth && dy < mHeight) {
+        mPresenceFlags[dx + dy * mWidth] |= HAS_ENTITY_FLAG;
+    }
 }

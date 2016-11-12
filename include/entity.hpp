@@ -21,6 +21,11 @@ public:
     virtual int getForegroundColor();
     virtual int getIconIndex();
 
+    virtual bool canAttack(int dx, int dy);
+    virtual void onAttackedBy(int dmg, AbstractEntity* src);
+
+    virtual void onTick(int tickN);
+
     int x();
     int y();
     void getPosition(int& x, int& y);

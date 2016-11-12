@@ -13,6 +13,14 @@ game::level::AbstractTile* byId(int id);
 game::level::AbstractTile* byName(const std::string& name);
 }
 
+namespace entityregistry {
+void init();
+int nextId();
+void bind(game::level::AbstractEntity* e);
+game::level::AbstractEntity* byId(int id);
+game::level::AbstractEntity* byName(const std::string& name);
+}
+
 }
 
 #endif

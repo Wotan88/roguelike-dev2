@@ -3,6 +3,7 @@
 #include "serialization.hpp"
 #include "generators.hpp"
 #include "general_utils.hpp"
+#include "entities/goblin.hpp"
 
 #include <easylogging++.h>
 
@@ -19,6 +20,8 @@ game::Game::Game() {
     mPlayer = nullptr;
 
     mCurrentDepth = 0;
+    // TODO: move to level
+    mTickNumber = 0;
 }
 
 game::Game::~Game() {
@@ -65,6 +68,8 @@ void game::Game::genLevel() {
     g.getSpawnPosition(psx, psy);
     mPlayer->setPosition(psx, psy);
     mCurrentLevel->addEntity(mPlayer);
+
+    mCurrentLevel->spawn(psx + 1, psy, "mob:goblin");
 }
 
 void game::Game::nextDepth() {
@@ -120,6 +125,24 @@ void game::Game::prevDepth() {
     }
 }
 
+void game::Game::endTurn() {
+    int php = mPlayer->getProperty<int>("hp", -1);
+    LOG(DEBUG)<< php;
+    if (php <= 0){
+        LOG(DEBUG)<< "PLAYER DIED";
+        mRunning = false;
+        return;
+    }
+
+    for (auto e : mCurrentLevel->entities()) {
+        if (e)
+            e->onTick(mTickNumber);
+    }
+    mTickNumber++;
+
+    updateCamera();
+}
+
 void game::Game::fullRender() {
     mRenderer->clear();
     mRenderer->renderLevel(0, 0, game::gfx::SCREEN_WIDTH - 25,
@@ -140,6 +163,12 @@ void game::Game::startInternal() {
     mPlayer = new level::Player(mCurrentLevel);
 
     game::serialization::loadAllTiles("assets/tiles/");
+
+    level::entity::GoblinEntity* e = new level::entity::GoblinEntity(nullptr);
+    e->setProperty<string>("assetName", "mob:goblin");
+    e->setProperty<int>("iconIndex", 'g');
+    e->setProperty<int>("foregroundColor", 0x8888FF);
+    entityregistry::bind(e);
 
     genLevel();
 
@@ -196,13 +225,27 @@ void game::Game::moveControl(int dx, int dy) {
     int px, py;
     mPlayer->getPosition(px, py);
     if (mPlayer->checkMove(dx, dy)) {
+        LOG(DEBUG)<< "Move caused player to end turn";
         mPlayer->move(dx, dy);
         mCurrentLevel->update();
-        updateCamera();
+        endTurn();
     } else {
-        if (mPlayer->onCollideTile(px + dx, py + dy)) {
+        if (mPlayer->canAttack(px + dx, py + dy)) {
+            LOG(DEBUG)<< "Attack caused player to end turn";
+            // Attack entity
+            level::AbstractEntity* e = mCurrentLevel->getEntityAt(px + dx, py + dy);
+
+            LOG(DEBUG)<< e;
+            if (e) {
+                e->onAttackedBy(1, mPlayer);
+            }
+            // End turn
             mCurrentLevel->update();
-            updateCamera();
+            endTurn();
+        } else if (mPlayer->onCollideTile(px + dx, py + dy)) {
+            LOG(DEBUG)<< "Collision caused player to end turn";
+            mCurrentLevel->update();
+            endTurn();
         }
     }
 }

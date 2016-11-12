@@ -41,6 +41,8 @@ public:
 
     void updateCamera();
 
+    void endTurn();
+
     // Event callback
     void sdlEvent(SDL_Event* e);
 
@@ -71,6 +73,7 @@ private:
     // Holds game state
     bool mRunning;
     int mCurrentDepth;
+    int mTickNumber;
 };
 
 }
