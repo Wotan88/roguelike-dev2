@@ -1,4 +1,5 @@
 #include "entity.hpp"
+#include "messages.hpp"
 
 game::level::Player::Player(Level* l) :
         AbstractEntity(l) {
@@ -17,4 +18,13 @@ bool game::level::Player::onCollideTile(int x, int y) {
     }
 
     return false;
+}
+
+void game::level::Player::onAttackedBy(int dmg, AbstractEntity* src) {
+    if (src) {
+        messages::push(
+                "You were attacked by "
+                        + src->getProperty<string>("name", "unknown entity"));
+    }
+    messages::push("(-" + std::to_string(dmg) + " HP)");
 }

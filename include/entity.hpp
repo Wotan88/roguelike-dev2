@@ -52,6 +52,7 @@ public:
     ~Player();
 
     bool onCollideTile(int x, int y) override;
+    void onAttackedBy(int dmg, AbstractEntity* src) override;
 private:
 };
 

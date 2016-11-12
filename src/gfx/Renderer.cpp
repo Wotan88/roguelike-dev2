@@ -1,6 +1,7 @@
 #include "gfx.hpp"
 #include "game.hpp"
 #include "general_utils.hpp"
+#include "messages.hpp"
 
 #include <SDL2/SDL_image.h>
 #include <easylogging++.h>
@@ -86,8 +87,19 @@ void game::gfx::Renderer::pollEvents() {
     if (time - mLastTick >= 250) {
         mLastTick = time;
 
-        //renderEntitiesAndAdjacent(2);
         renderAll();
+    }
+}
+
+void game::gfx::Renderer::renderHud() {
+    TIMED_FUNC(timerObj);
+    fill(SCREEN_WIDTH - 25, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ' ', 0, 0xCFCFCF);
+
+    int d = 0;
+    while (game::messages::next()) {
+        string msg = game::messages::pop();
+        int dd = renderText(SCREEN_WIDTH - 25, d, msg, 0, 0xCFCFCF);
+        d += dd;
     }
 }
 
@@ -109,6 +121,23 @@ void game::gfx::Renderer::renderBufferItem(int x, int y,
     SDL_RenderFillRect(mRenderer, &rect);
 
     mTilesetTexture->render(c.characterIndex, &rect);
+}
+
+int game::gfx::Renderer::renderText(int x, int y, const string& str, int fg,
+        int bg) {
+    CharacterWrapper ch { 0, bg, fg };
+    int xoff = 0;
+    int yoff = 0;
+    for (unsigned int xx = 0; xx < str.length(); xx++) {
+        ch.characterIndex = str[xx];
+        mBuffer(x + xoff, y + yoff) = ch;
+        xoff++;
+        if (x + xoff >= SCREEN_WIDTH) {
+            xoff = 0;
+            yoff++;
+        }
+    }
+    return yoff + 1;
 }
 
 void game::gfx::Renderer::put(int x, int y, int c, int fg, int bg) {

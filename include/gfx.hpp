@@ -98,13 +98,14 @@ public:
 
     // Draws level
     void renderLevel(int sx, int sy, int dx, int dy);
-
+    void renderHud();
     void renderEntitiesAndAdjacent(int dx);
     void renderEntities();
 
     // Renders single character
     void renderBufferItem(int x, int y, const CharacterWrapper& c);
 
+    int renderText(int x, int y, const string& str, int fg, int bg);
     // Draws characters to internal buffer
     void put(int x, int y, int c, int fg, int bg);
     void fill(int sx, int sy, int dx, int dy, int c, int fg, int bg);

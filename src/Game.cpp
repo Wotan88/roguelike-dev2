@@ -4,6 +4,7 @@
 #include "generators.hpp"
 #include "general_utils.hpp"
 #include "entities/goblin.hpp"
+#include "messages.hpp"
 
 #include <easylogging++.h>
 
@@ -148,6 +149,7 @@ void game::Game::fullRender() {
     mRenderer->renderLevel(0, 0, game::gfx::SCREEN_WIDTH - 25,
             game::gfx::SCREEN_HEIGHT);
     mRenderer->renderEntities();
+    mRenderer->renderHud();
     mRenderer->renderAll();
 }
 
@@ -168,6 +170,7 @@ void game::Game::startInternal() {
     e->setProperty<string>("assetName", "mob:goblin");
     e->setProperty<int>("iconIndex", 'g');
     e->setProperty<int>("foregroundColor", 0x8888FF);
+    e->setProperty<string>("name", "goblin");
     entityregistry::bind(e);
 
     genLevel();
@@ -234,9 +237,8 @@ void game::Game::moveControl(int dx, int dy) {
             LOG(DEBUG)<< "Attack caused player to end turn";
             // Attack entity
             level::AbstractEntity* e = mCurrentLevel->getEntityAt(px + dx, py + dy);
-
-            LOG(DEBUG)<< e;
             if (e) {
+                messages::push("You hit " + e->getProperty<string>("name", ""));
                 e->onAttackedBy(1, mPlayer);
             }
             // End turn

@@ -2,7 +2,6 @@
 
 void game::level::entity::GoblinEntity::onAttackedBy(int dmg,
         AbstractEntity* src) {
-    LOG(DEBUG)<< "Damage from player, "<<dmg;
 }
 
 void game::level::entity::GoblinEntity::onTick(int n) {
@@ -18,7 +17,6 @@ void game::level::entity::GoblinEntity::onTick(int n) {
                 if (canAttack(x, y)) {
                     AbstractEntity* target = mLevel->getEntityAt(x, y);
                     if (target) {
-                        LOG(DEBUG)<< "Attacking player";
                         target->onAttackedBy(1, this);
                         return;
                     }
