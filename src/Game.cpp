@@ -20,6 +20,10 @@ game::Game::Game() {
     mCamera = nullptr;
     mPlayer = nullptr;
 
+    mSelectorX = 0;
+    mSelectorY = 0;
+    mControlMode = 0;
+
     mCurrentDepth = 0;
     // TODO: move to level
     mTickNumber = 0;
@@ -150,6 +154,35 @@ void game::Game::fullRender() {
         mRenderer->renderLevel(0, 0, game::gfx::SCREEN_WIDTH - 25,
                 game::gfx::SCREEN_HEIGHT);
         mRenderer->renderEntities();
+        if (mControlMode == 1) {
+            int sx, sy;
+            mCamera->translatePoint(mSelectorX, mSelectorY, sx, sy);
+            mRenderer->put(sx, sy, -1, 0, 0xDDDDDD);
+            int px, py;
+            mPlayer->getPosition(px, py);
+            float angle = std::atan2(mSelectorY - py, mSelectorX - px);
+            float dist = std::floor(
+                    std::sqrt(
+                            std::pow(mSelectorX - px, 2)
+                                    + std::pow(mSelectorY - py, 2)));
+            float fx, fy;
+            float dx, dy;
+            dx = std::cos(angle);
+            dy = std::sin(angle);
+            fx = px + 0.5;
+            fy = py + 0.5;
+            int ix, iy, isx, isy;
+            ix = 0;
+            iy = 0;
+            for (int i = 0; i < dist; i++) {
+                fx += dx;
+                fy += dy;
+                ix = (int) fx;
+                iy = (int) fy;
+                mCamera->translatePoint(ix, iy, isx, isy);
+                mRenderer->put(isx, isy, -1, 0, 0xBBBBBB);
+            }
+        }
         mRenderer->renderHud();
     } else {
         mRenderer->renderGui();
@@ -161,7 +194,8 @@ void game::Game::initGame() {
 
 }
 
-void game::Game::generatePlayerAndStart(const vector<std::pair<string, int>>& attrs) {
+void game::Game::generatePlayerAndStart(
+        const vector<std::pair<string, int>>& attrs) {
     mCurrentLevel = new level::Level(200, 120);
     level::depths::push(mCurrentLevel);
     mCamera = new level::Camera(0, 0);
@@ -172,7 +206,7 @@ void game::Game::generatePlayerAndStart(const vector<std::pair<string, int>>& at
     int px, py;
     mPlayer->getPosition(px, py);
 
-    for (auto it: attrs){
+    for (auto it : attrs) {
         mPlayer->setAttribute(it.first, it.second);
     }
 
@@ -209,7 +243,13 @@ int game::Game::state() {
 
 void game::Game::updateCamera() {
     int px, py, cx, cy;
-    mPlayer->getPosition(px, py);
+
+    if (mControlMode == 0) {
+        mPlayer->getPosition(px, py);
+    } else {
+        px = mSelectorX;
+        py = mSelectorY;
+    }
     mCamera->translatePoint(px, py, cx, cy);
 
     while (cx <= 5) {
@@ -238,29 +278,83 @@ void game::Game::updateCamera() {
 void game::Game::moveControl(int dx, int dy) {
     int px, py;
     mPlayer->getPosition(px, py);
-    if (mPlayer->checkMove(dx, dy)) {
-        LOG(DEBUG)<< "Move caused player to end turn";
-        mPlayer->move(dx, dy);
-        mCurrentLevel->update();
-        endTurn();
-    } else {
-        if (mPlayer->canAttack(px + dx, py + dy)) {
-            LOG(DEBUG)<< "Attack caused player to end turn";
-            // Attack entity
-            level::AbstractEntity* e = mCurrentLevel->getEntityAt(px + dx, py + dy);
-            if (e) {
-                messages::push("You hit " + e->getProperty<string>("name", ""));
-                e->onAttackedBy(1, mPlayer);
+    if (mControlMode == 0) {
+        if (mPlayer->checkMove(dx, dy)) {
+            LOG(DEBUG)<< "Move caused player to end turn";
+            mPlayer->move(dx, dy);
+            mCurrentLevel->update();
+            endTurn();
+        } else {
+            if (mPlayer->canAttack(px + dx, py + dy)) {
+                LOG(DEBUG)<< "Attack caused player to end turn";
+                // Attack entity
+                level::AbstractEntity* e = mCurrentLevel->getEntityAt(px + dx, py + dy);
+                if (e) {
+                    messages::push("You hit " + e->getProperty<string>("name", ""));
+                    e->onAttackedBy(1, mPlayer);
+                }
+                // End turn
+                mCurrentLevel->update();
+                endTurn();
+            } else if (mPlayer->onCollideTile(px + dx, py + dy)) {
+                LOG(DEBUG)<< "Collision caused player to end turn";
+                mCurrentLevel->update();
+                endTurn();
             }
-            // End turn
-            mCurrentLevel->update();
-            endTurn();
-        } else if (mPlayer->onCollideTile(px + dx, py + dy)) {
-            LOG(DEBUG)<< "Collision caused player to end turn";
-            mCurrentLevel->update();
-            endTurn();
         }
+    } else {
+        mSelectorX += dx;
+        mSelectorY += dy;
+        updateCamera();
     }
+}
+
+void game::Game::shootProjectile(int x, int y) {
+    int px, py;
+    mPlayer->getPosition(px, py);
+
+    float angle = std::atan2(y - py, x - px);
+    float dist = std::floor(
+            std::sqrt(
+                    std::pow(mSelectorX - px, 2)
+                            + std::pow(mSelectorY - py, 2)));
+    float fx, fy;
+    float dx, dy;
+    dx = std::cos(angle);
+    dy = std::sin(angle);
+    fx = px + 0.5;
+    fy = py + 0.5;
+    int ix, iy;
+
+    for (int i = 0; i < dist; i++) {
+        fx += dx;
+        fy += dy;
+
+        ix = (int) fx;
+        iy = (int) fy;
+
+        level::AbstractEntity* e = mCurrentLevel->getEntityAt(ix, iy);
+        if (e) { // We hit an entity
+            break;
+        }
+
+        level::AbstractTile* t = (*mCurrentLevel)(ix, iy);
+
+        if (t && t->isCollidable(ix, iy, mCurrentLevel)) { // We hit collidable tile
+            break;
+        }
+
+        mCamera->translatePoint(ix, iy, ix, iy);
+
+        mRenderer->renderLevel(ix - 1, iy - 1, ix + 1, iy + 1);
+        mRenderer->put(ix, iy, '*', 0xFFFFFF, 0);
+        mRenderer->renderAll();
+
+        SDL_Delay(50);
+    }
+
+    mControlMode = 0;
+    fullRender();
 }
 
 void game::Game::gameControl(SDL_Keysym* k) {
@@ -297,6 +391,16 @@ void game::Game::gameControl(SDL_Keysym* k) {
         if (t && t->isUpstairs(px, py, mCurrentLevel)) {
             LOG(DEBUG)<< "Prev depth";
             prevDepth();
+        }
+        return;
+    }
+
+    if (scancode == SDL_SCANCODE_T) {
+        if (mControlMode == 0) {
+            mPlayer->getPosition(mSelectorX, mSelectorY);
+            mControlMode = 1;
+        } else {
+            shootProjectile(mSelectorX, mSelectorY);
         }
         return;
     }

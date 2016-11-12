@@ -57,6 +57,8 @@ public:
     void nextDepth();
     void prevDepth();
 
+    void shootProjectile(int x, int y);
+
     static constexpr int STATE_PLAYING = 1;
 private:
     // Private constructor
@@ -87,6 +89,8 @@ private:
     bool mRunning;
     int mCurrentDepth;
     int mTickNumber;
+    int mSelectorX, mSelectorY;
+    int mControlMode;
 };
 
 }
