@@ -1,8 +1,20 @@
 #include "entity.hpp"
+#include "serialization.hpp"
 
 game::level::AbstractEntity::AbstractEntity(Level* l) :
         mX(0), mY(0), mLevel(l) {
     setProperty<string>("class", "AbstractEntity");
+}
+
+game::level::AbstractEntity* game::level::AbstractEntity::clone() {
+    LOG(DEBUG)<< "Clone() " << getProperty<string>("assetName", "");
+    LOG(DEBUG)<< getProperty<string>("class", "");
+    AbstractEntity* ret = game::serialization::instantiateEntityClass(getProperty<string>("class", ""));
+    ret->mLevel = mLevel;
+    getPosition(ret->mX, ret->mY);
+    ret->properties = this->properties; // Clone properties
+    LOG(DEBUG)<< ret->getProperty<string>("class", "");
+    return ret;
 }
 
 game::level::AbstractEntity::~AbstractEntity() {
@@ -84,7 +96,7 @@ bool game::level::AbstractEntity::canAttack(int dx, int dy) {
 
 void game::level::AbstractEntity::onAttackedBy(int dmg, AbstractEntity* src) {
     int hp = this->getProperty<int>("hp", -1);
-    if (hp != -1){
+    if (hp != -1) {
         this->setProperty<int>("hp", hp - dmg);
     }
 }

@@ -1,5 +1,12 @@
 #include "entities/goblin.hpp"
 
+#include <easylogging++.h>
+
+game::level::entity::GoblinEntity::GoblinEntity(Level* l) :
+        AbstractEntity(l) {
+    setProperty<string>("class", "Goblin");
+}
+
 void game::level::entity::GoblinEntity::onAttackedBy(int dmg,
         AbstractEntity* src) {
 }

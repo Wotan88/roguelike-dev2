@@ -19,6 +19,10 @@ public:
     // Constructor
     Properties() {
     }
+
+    Properties(const Properties& c){
+        mInternalMap = c.mInternalMap;
+    }
     // Destructor
     ~Properties() {
     }

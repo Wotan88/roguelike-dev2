@@ -228,8 +228,9 @@ void game::level::Level::addEntity(AbstractEntity* e) {
 void game::level::Level::spawn(int x, int y, const string& name) {
     AbstractEntity* e = game::entityregistry::byName(name);
     if (e) {
-        e->setPosition(x, y);
-        addEntity(e);
+        AbstractEntity* instance = e->clone();
+        instance->setPosition(x, y);
+        addEntity(instance);
     }
 }
 

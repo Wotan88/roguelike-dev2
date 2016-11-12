@@ -12,6 +12,8 @@ game::level::AbstractTile* instantiateTileClass(const string& basename);
 game::level::AbstractTile* loadTile(const string& filename);
 void loadAllTiles(const string& dir);
 
+game::level::AbstractEntity* instantiateEntityClass(const string& basename);
+
 }
 }
 

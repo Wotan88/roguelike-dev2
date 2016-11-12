@@ -15,6 +15,8 @@ class AbstractEntity: public game::data::PropertyHolder {
 public:
     // Constructor
     AbstractEntity(game::level::Level* l);
+    // Clone method
+    AbstractEntity* clone();
     // Destructor
     virtual ~AbstractEntity();
 

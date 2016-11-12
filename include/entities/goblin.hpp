@@ -7,9 +7,7 @@ namespace level {
 namespace entity {
 class GoblinEntity: public AbstractEntity {
 public:
-    GoblinEntity(Level* l) :
-            AbstractEntity(l) {
-    }
+    GoblinEntity(Level* l);
     virtual ~GoblinEntity() {
     }
     void onAttackedBy(int dmg, AbstractEntity* src) override;

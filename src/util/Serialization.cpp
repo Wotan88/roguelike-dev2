@@ -3,6 +3,7 @@
 #include "structs.hpp"
 #include "registry.hpp"
 #include "tiles/all.hpp"
+#include "entities/all.hpp"
 
 #include <json.hpp>
 
@@ -92,4 +93,11 @@ void game::serialization::loadAllTiles(const string& dirn) {
             tileregistry::bind(t);
         }
     }
+}
+
+game::level::AbstractEntity* game::serialization::instantiateEntityClass(const string& basename){
+    if (basename == "Goblin"){
+        return new level::entity::GoblinEntity(nullptr);
+    }
+    return new level::AbstractEntity(nullptr);
 }

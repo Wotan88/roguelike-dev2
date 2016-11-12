@@ -69,8 +69,6 @@ void game::Game::genLevel() {
     g.getSpawnPosition(psx, psy);
     mPlayer->setPosition(psx, psy);
     mCurrentLevel->addEntity(mPlayer);
-
-    mCurrentLevel->spawn(psx + 1, psy, "mob:goblin");
 }
 
 void game::Game::nextDepth() {
@@ -165,13 +163,6 @@ void game::Game::startInternal() {
     mPlayer = new level::Player(mCurrentLevel);
 
     game::serialization::loadAllTiles("assets/tiles/");
-
-    level::entity::GoblinEntity* e = new level::entity::GoblinEntity(nullptr);
-    e->setProperty<string>("assetName", "mob:goblin");
-    e->setProperty<int>("iconIndex", 'g');
-    e->setProperty<int>("foregroundColor", 0x8888FF);
-    e->setProperty<string>("name", "goblin");
-    entityregistry::bind(e);
 
     genLevel();
 
