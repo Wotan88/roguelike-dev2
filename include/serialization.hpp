@@ -14,9 +14,12 @@ game::level::AbstractTile* loadTile(const string& filename);
 void loadAllTiles(const string& dir);
 
 game::level::AbstractEntity* instantiateEntityClass(const string& basename);
+game::level::AbstractEntity* loadEntity(const string& filename);
+void loadAllEntities(const string& dir);
 
 game::item::AbstractItem* instantiateItemClass(const string& basename);
 game::item::AbstractItem* loadItem(const string& filename);
+void loadAllItems(const string& dir);
 
 }
 }

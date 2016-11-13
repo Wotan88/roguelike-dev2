@@ -234,9 +234,9 @@ void game::Game::startInternal() {
     mRenderer = new gfx::Renderer();
     mRenderer->loadResources();
 
+    game::serialization::loadAllEntities("assets/entities/");
     game::serialization::loadAllTiles("assets/tiles/");
-    auto i = game::serialization::loadItem("assets/items/smallFood.json");
-    game::itemregistry::bind(i);
+    game::serialization::loadAllItems("assets/items/");
 
     mCurrentGui = new game::gui::EmbarkGUI();
 
