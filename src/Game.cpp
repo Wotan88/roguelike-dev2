@@ -29,6 +29,7 @@ game::Game::Game() {
     mTickNumber = 0;
     mState = 0;
     mCurrentGui = nullptr;
+    mDeleteGui = nullptr;
 }
 
 game::Game::~Game() {
@@ -195,10 +196,6 @@ void game::Game::fullRender() {
         mRenderer->renderGui();
     }
     mRenderer->renderAll();
-}
-
-void game::Game::initGame() {
-
 }
 
 void game::Game::setGui(game::gui::AbstractGUI* g) {

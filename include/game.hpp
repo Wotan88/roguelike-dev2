@@ -67,7 +67,6 @@ private:
     // Internal start method
     void startInternal();
 
-    void initGame();
     void genLevel();
 
     void moveControl(int dx, int dy);
