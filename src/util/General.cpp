@@ -76,3 +76,19 @@ int game::util::darken(int col, int v) {
     b = (int) (b * p);
     return (r << 16) | (g << 8) | (b);
 }
+
+std::string game::util::wrap(const std::string& str, int width) {
+    size_t curWidth = width;
+    string ret = str;
+    while (curWidth < ret.length()) {
+        std::string::size_type spacePos = ret.rfind(' ', curWidth);
+        if (spacePos == std::string::npos)
+            spacePos = ret.find(' ', curWidth);
+        if (spacePos != std::string::npos) {
+            ret[spacePos] = '\n';
+            curWidth = spacePos + width + 1;
+        }
+    }
+
+    return ret;
+}

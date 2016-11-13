@@ -131,6 +131,11 @@ void game::Game::prevDepth() {
 }
 
 void game::Game::endTurn() {
+    if (mDeleteGui) {
+        delete mDeleteGui;
+        mDeleteGui = nullptr;
+    }
+
     int php = mPlayer->getProperty<int>("hp", -1);
     LOG(DEBUG)<< php;
     if (php <= 0) {
@@ -149,6 +154,7 @@ void game::Game::endTurn() {
 }
 
 void game::Game::fullRender() {
+    TIMED_FUNC(timerObj);
     mRenderer->clear();
     if (mState == STATE_PLAYING) {
         mRenderer->renderLevel(0, 0, game::gfx::SCREEN_WIDTH - 25,
@@ -196,8 +202,9 @@ void game::Game::initGame() {
 }
 
 void game::Game::setGui(game::gui::AbstractGUI* g) {
-    delete mCurrentGui;
+    mDeleteGui = mCurrentGui;
     mCurrentGui = g;
+    fullRender();
 }
 
 void game::Game::generatePlayerAndStart(

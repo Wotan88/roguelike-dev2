@@ -7,6 +7,8 @@ namespace item {
 
 class FoodItem: public AbstractItem {
 public:
+    FoodItem();
+
     bool onUsed(level::AbstractEntity* src) override;
 };
 

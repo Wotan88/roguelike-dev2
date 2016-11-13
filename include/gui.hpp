@@ -41,11 +41,19 @@ public:
     InventoryGUI();
     ~InventoryGUI();
 
+    void checkItem(int i);
+    void performAction(int i, int name);
+
     bool capturesKeyboard() override;
     bool onKeyDown(int sc, int ch) override;
     void render() override;
+
+    static constexpr int ACTION_USE = 1;
+    static constexpr int ACTION_DROP = 2;
 private:
     level::Player* mPlayer;
+    int mCheckedItem;
+    vector<std::tuple<char, int, string>> mActions;
 };
 
 }

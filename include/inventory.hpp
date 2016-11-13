@@ -20,6 +20,7 @@ public:
     void setSlot(int i, int c, int v);
     int getSize();
     InventoryItem& getSlot(int i);
+    void updateCount(int i, int delta);
 private:
     std::vector<InventoryItem> mInternalArray;
     int mSize;
@@ -33,6 +34,7 @@ public:
     bool addItem(const std::string& name, int count = 1);
     int getInventorySize();
     InventoryItem& getItem(int i);
+    void updateCount(int i, int delta);
 private:
     Inventory mInventory;
 };

@@ -4,5 +4,9 @@
     "iconIndex": "%",
     "name": "Small food ration",
     "namePlural": "Small food rations",
-    "nutrition": 10
+    "desc": "Small package with some dried meat and bread. Nothing special.",
+    "nutrition": 10,
+    "useAction": "Eat",
+    "useKey": "e",
+    "eatenMessage": "Tasted good"
 }

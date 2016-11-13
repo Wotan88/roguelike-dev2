@@ -85,6 +85,7 @@ private:
     game::level::Player* mPlayer;
 
     game::gui::AbstractGUI* mCurrentGui;
+    game::gui::AbstractGUI* mDeleteGui;
     // Holds game state
     int mState;
     bool mRunning;

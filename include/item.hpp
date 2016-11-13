@@ -16,6 +16,8 @@ public:
     virtual ~AbstractItem();
 
     virtual bool onUsed(level::AbstractEntity* src);
+    virtual bool isUsable();
+    virtual bool isEquipable();
 };
 
 }

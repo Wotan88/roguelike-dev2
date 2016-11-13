@@ -26,6 +26,16 @@ void game::item::Inventory::setSlot(int i, int c, int v) {
     mInternalArray[i].count = v;
 }
 
+void game::item::Inventory::updateCount(int i, int delta){
+    if (mInternalArray[i].count > 0 && mInternalArray[i].itemId){
+        int newcount = std::max(0, mInternalArray[i].count + delta);
+        if (newcount == 0){
+            mInternalArray[i].itemId = 0;
+        }
+        mInternalArray[i].count = newcount;
+    }
+}
+
 bool game::item::Inventory::addItem(const string& name, int count) {
     game::item::AbstractItem* g = game::itemregistry::byName(name);
 
@@ -73,4 +83,8 @@ int game::item::InventoryHolder::getInventorySize() {
 
 game::item::InventoryItem& game::item::InventoryHolder::getItem(int i) {
     return mInventory.getSlot(i);
+}
+
+void game::item::InventoryHolder::updateCount(int i, int delta){
+    mInventory.updateCount(i, delta);
 }

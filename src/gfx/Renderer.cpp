@@ -93,10 +93,10 @@ void game::gfx::Renderer::pollEvents() {
     }
 }
 
-void game::gfx::Renderer::disableRenderTicking(){
+void game::gfx::Renderer::disableRenderTicking() {
     mRenderTick = false;
 }
-void game::gfx::Renderer::enableRenderTicking(){
+void game::gfx::Renderer::enableRenderTicking() {
     mRenderTick = true;
 }
 
@@ -138,6 +138,11 @@ int game::gfx::Renderer::renderText(int x, int y, const string& str, int fg,
     int xoff = 0;
     int yoff = 0;
     for (unsigned int xx = 0; xx < str.length(); xx++) {
+        if (str[xx] == '\n') {
+            xoff = 0;
+            yoff++;
+            continue;
+        }
         ch.characterIndex = str[xx];
         mBuffer(x + xoff, y + yoff) = ch;
         xoff++;
