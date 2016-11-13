@@ -5,6 +5,8 @@
 namespace game {
 namespace level {
 namespace entity {
+
+// Goblin entity
 class GoblinEntity: public AbstractEntity {
 public:
     GoblinEntity(Level* l);

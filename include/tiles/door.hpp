@@ -6,6 +6,7 @@ namespace game {
 namespace level {
 namespace tile {
 
+// Generic door
 class Door: public game::level::AbstractTile {
 public:
     Door() :

@@ -22,44 +22,50 @@ class Game {
 public:
     // Destructor
     ~Game();
-
     // Instance getter
     static Game* instance();
-
     // Start method
     static void start();
 
+    // Renders all objects
     void fullRender();
 
+    // Creates player using attribute set (attrs) and starts game
     void generatePlayerAndStart(const vector<std::pair<string, int>>& attrs);
 
-    // Returns renderer
-    game::gfx::Renderer* renderer();
-
-    // Returns current level
-    game::level::Level* currentLevel();
-
-    game::level::Camera* camera();
-
-    game::level::Player* player();
-
-    game::gui::AbstractGUI* gui();
-
+    // Returns game state (playing, paused, etc.)
     int state();
 
-    void updateCamera();
-
-    void endTurn();
-
-    // Event callback
-    void sdlEvent(SDL_Event* e);
-
+    // Changes current level
     void nextDepth();
     void prevDepth();
 
-    void setGui(game::gui::AbstractGUI* g);
+    // Updates camera position
+    void updateCamera();
+
+    // Shoots projectile (TODO: implement item binding)
     void shootProjectile(int x, int y);
 
+    // Sets GUI (and calls destructor on previous, if present)
+    void setGui(game::gui::AbstractGUI* g);
+
+    // Returns renderer
+    game::gfx::Renderer* renderer();
+    // Returns current level
+    game::level::Level* currentLevel();
+    // Returns camera
+    game::level::Camera* camera();
+    // Returns player
+    game::level::Player* player();
+    // Returns current GUI
+    game::gui::AbstractGUI* gui();
+
+    // Event callback
+    void sdlEvent(SDL_Event* e);
+    // End current turn (pass control from player to AI)
+    void endTurn();
+
+    // Game states
     static constexpr int STATE_PLAYING = 1;
 private:
     // Private constructor
@@ -83,13 +89,17 @@ private:
     // Player
     game::level::Player* mPlayer;
 
+    // GUI
     game::gui::AbstractGUI* mCurrentGui;
     game::gui::AbstractGUI* mDeleteGui;
+
     // Holds game state
     int mState;
     bool mRunning;
     int mCurrentDepth;
+    // Number of current turn
     int mTickNumber;
+    // "Cursor" position
     int mSelectorX, mSelectorY;
     int mControlMode;
 };

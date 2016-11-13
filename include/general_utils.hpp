@@ -27,10 +27,13 @@ int parseColor(const string& str);
 
 vector<string> listDir(const string& str);
 
+// Returns value of key with 'shift' held
 int shiftKey(int k);
 
+// Darkens color by `v` tenths
 int darken(int col, int v);
 
+// Performs word-wrapping function
 string wrap(const string& in, int width);
 }
 }

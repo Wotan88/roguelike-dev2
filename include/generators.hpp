@@ -7,6 +7,7 @@ namespace game {
 namespace level {
 namespace gen {
 
+// Produces simple flat level
 class BoxGenerator: public AbstractGenerator {
 public:
     // Constructor
@@ -24,6 +25,7 @@ struct Rect {
     int width, height;
 };
 
+// Produces dungeon-like level
 class DungeonGenerator: public AbstractGenerator {
 public:
     enum Tile {

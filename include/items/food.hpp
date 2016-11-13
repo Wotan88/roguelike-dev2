@@ -5,6 +5,7 @@
 namespace game {
 namespace item {
 
+// Generic food
 class FoodItem: public AbstractItem {
 public:
     FoodItem();

@@ -10,8 +10,10 @@ using std::vector;
 namespace game {
 namespace gfx {
 
-static constexpr std::array<int, 10> COLORS_DIST = { 0xFFFFFF, 0xFFFF00, 0xFFAA00,
-        0xFF8800, 0xFF4400, 0xFF0000, 0xFF0044, 0xFF0088, 0xFF00AA, 0xFF00FF };
+// Colors for debug display
+static constexpr std::array<int, 10> COLORS_DIST = { 0xFFFFFF, 0xFFFF00,
+        0xFFAA00, 0xFF8800, 0xFF4400, 0xFF0000, 0xFF0044, 0xFF0088, 0xFF00AA,
+        0xFF00FF };
 
 // Game constants
 const int TICK_INTERVAL = 100;
@@ -96,24 +98,25 @@ public:
     // Main render method
     void renderAll();
 
-    // Draws level
+    // Drawing functions
     void renderLevel(int sx, int sy, int dx, int dy);
     void renderHud();
     void renderEntitiesAndAdjacent(int dx);
     void renderEntities();
-
     void renderGui();
 
-    // Renders single character
-    void renderBufferItem(int x, int y, const CharacterWrapper& c);
-
+    // Character drawing functions
     int renderText(int x, int y, const string& str, int fg, int bg);
-    // Draws characters to internal buffer
     void put(int x, int y, int c, int fg, int bg);
     void fill(int sx, int sy, int dx, int dy, int c, int fg, int bg);
 
+    // Renders internal buffer item to screen
+    void renderBufferItem(int x, int y, const CharacterWrapper& c);
+
+    // Clears internal buffer
     void clear();
 
+    // Auto-render
     void disableRenderTicking();
     void enableRenderTicking();
 
