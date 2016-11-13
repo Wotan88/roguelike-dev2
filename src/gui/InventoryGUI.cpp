@@ -55,7 +55,7 @@ bool game::gui::InventoryGUI::onKeyDown(int sc, int ch) {
         }
     }
 
-    if (sc >= SDL_SCANCODE_A && sc <= SDL_SCANCODE_J) {
+    if (sc >= SDL_SCANCODE_A && sc <= SDL_SCANCODE_A + mPlayer->getInventorySize() - 1) {
         int i = sc - SDL_SCANCODE_A;
         item::InventoryItem it = mPlayer->getItem(i);
         if (it.itemId && it.count) {
@@ -108,6 +108,10 @@ void game::gui::InventoryGUI::render() {
 
         r->renderText(6, i + 5, s, 0, 0xCFCFCF);
     }
+
+    string usageNotes = game::util::wrap("["+string(1, 'a')+"-"+string(1,'a'+mPlayer->getInventorySize())+"] - Select item, [Esc] - Close inventory", 50);
+    int nn = usageNotes.find('\n');
+    r->renderText((gfx::SCREEN_WIDTH - (nn == -1 ? usageNotes.length() : nn)) / 2, gfx::SCREEN_HEIGHT - 6, usageNotes, 0, 0xCFCFCF);
 
     if (mCheckedItem != -1){
         game::item::InventoryItem item = mPlayer->getItem(mCheckedItem);
