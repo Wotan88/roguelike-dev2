@@ -1,7 +1,7 @@
 #ifndef INCLUDE_LEVEL_HPP_
 #define INCLUDE_LEVEL_HPP_
+#include "core.hpp"
 #include "structs.hpp"
-#include "entity.hpp"
 
 #include <string>
 #include <vector>

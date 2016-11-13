@@ -6,6 +6,10 @@ using std::string;
 using std::vector;
 
 namespace game {
+namespace level {
+class Player;
+}
+
 namespace gui {
 
 class AbstractGUI {
@@ -30,6 +34,18 @@ private:
     vector<std::pair<string, int>> mAttributes;
     int mPointsLeft;
     int mSelectedItem;
+};
+
+class InventoryGUI: public AbstractGUI {
+public:
+    InventoryGUI();
+    ~InventoryGUI();
+
+    bool capturesKeyboard() override;
+    bool onKeyDown(int sc, int ch) override;
+    void render() override;
+private:
+    level::Player* mPlayer;
 };
 
 }

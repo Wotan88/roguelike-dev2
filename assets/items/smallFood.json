@@ -1,0 +1,8 @@
+{
+    "class": "Food",
+    "assetName": "food:small",
+    "iconIndex": "%",
+    "name": "Small food ration",
+    "namePlural": "Small food rations",
+    "nutrition": 10
+}

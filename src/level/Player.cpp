@@ -2,7 +2,7 @@
 #include "messages.hpp"
 
 game::level::Player::Player(Level* l) :
-        AbstractEntity(l) {
+        AbstractEntity(l), InventoryHolder(10) {
     setProperty<string>("class", "Player");
     setProperty<int>("hp", 20);
 }

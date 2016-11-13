@@ -184,7 +184,8 @@ void game::Game::fullRender() {
             }
         }
         mRenderer->renderHud();
-    } else {
+    }
+    if (mCurrentGui) {
         mRenderer->renderGui();
     }
     mRenderer->renderAll();
@@ -194,13 +195,19 @@ void game::Game::initGame() {
 
 }
 
+void game::Game::setGui(game::gui::AbstractGUI* g) {
+    delete mCurrentGui;
+    mCurrentGui = g;
+}
+
 void game::Game::generatePlayerAndStart(
         const vector<std::pair<string, int>>& attrs) {
     mCurrentLevel = new level::Level(200, 120);
     level::depths::push(mCurrentLevel);
     mCamera = new level::Camera(0, 0);
     mPlayer = new level::Player(mCurrentLevel);
-    game::serialization::loadAllTiles("assets/tiles/");
+
+    mPlayer->addItem("food:small", 2);
     genLevel();
     mCurrentLevel->update();
     int px, py;
@@ -212,7 +219,7 @@ void game::Game::generatePlayerAndStart(
 
     mCamera->center(px, py);
 
-    mCurrentGui = nullptr;
+    setGui(nullptr);
     mState = STATE_PLAYING;
 
     mRenderer->enableRenderTicking();
@@ -222,6 +229,10 @@ void game::Game::generatePlayerAndStart(
 void game::Game::startInternal() {
     mRenderer = new gfx::Renderer();
     mRenderer->loadResources();
+
+    game::serialization::loadAllTiles("assets/tiles/");
+    auto i = game::serialization::loadItem("assets/items/smallFood.json");
+    game::itemregistry::bind(i);
 
     mCurrentGui = new game::gui::EmbarkGUI();
 
@@ -252,22 +263,22 @@ void game::Game::updateCamera() {
     }
     mCamera->translatePoint(px, py, cx, cy);
 
-    while (cx <= 5) {
+    while (cx <= 10) {
         mCamera->move(-1, 0);
         mCamera->translatePoint(px, py, cx, cy);
     }
 
-    while (cy <= 4) {
+    while (cy <= 9) {
         mCamera->move(0, -1);
         mCamera->translatePoint(px, py, cx, cy);
     }
 
-    while (cx >= game::gfx::SCREEN_WIDTH - 25 - 5) {
+    while (cx >= game::gfx::SCREEN_WIDTH - 25 - 10) {
         mCamera->move(1, 0);
         mCamera->translatePoint(px, py, cx, cy);
     }
 
-    while (cy >= game::gfx::SCREEN_HEIGHT - 4 - 1) {
+    while (cy >= game::gfx::SCREEN_HEIGHT - 9 - 1) {
         mCamera->move(0, 1);
         mCamera->translatePoint(px, py, cx, cy);
     }
@@ -404,6 +415,13 @@ void game::Game::gameControl(SDL_Keysym* k) {
         }
         return;
     }
+    if (scancode == SDL_SCANCODE_I) {
+        if (mCurrentGui == nullptr) {
+            game::gui::InventoryGUI* ui = new game::gui::InventoryGUI();
+            setGui(ui);
+            fullRender();
+        }
+    }
 
     switch (ch) {
     case SDLK_KP_1:
@@ -444,6 +462,12 @@ void game::Game::sdlEvent(SDL_Event* e) {
     }
     if (e->type == SDL_KEYDOWN) {
         if (mState == STATE_PLAYING) {
+            if (mCurrentGui) {
+                if (mCurrentGui->capturesKeyboard()) {
+                    mCurrentGui->onKeyDown(e->key.keysym.scancode, e->key.keysym.sym);
+                    return;
+                }
+            }
             gameControl(&(e->key.keysym));
         } else {
             if (mCurrentGui) {

@@ -57,6 +57,7 @@ public:
     void nextDepth();
     void prevDepth();
 
+    void setGui(game::gui::AbstractGUI* g);
     void shootProjectile(int x, int y);
 
     static constexpr int STATE_PLAYING = 1;

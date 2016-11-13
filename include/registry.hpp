@@ -1,6 +1,7 @@
 #ifndef INCLUDE_REGISTRY_HPP_
 #define INCLUDE_REGISTRY_HPP_
 #include "level.hpp"
+#include "item.hpp"
 #include <string>
 
 namespace game {
@@ -20,6 +21,15 @@ void bind(game::level::AbstractEntity* e);
 game::level::AbstractEntity* byId(int id);
 game::level::AbstractEntity* byName(const std::string& name);
 }
+
+namespace itemregistry {
+void init();
+int nextId();
+void bind(game::item::AbstractItem* e);
+game::item::AbstractItem* byId(int id);
+game::item::AbstractItem* byName(const std::string& name);
+}
+
 
 }
 

@@ -1,7 +1,7 @@
 #ifndef INCLUDE_ENTITY_HPP_
 #define INCLUDE_ENTITY_HPP_
+#include "core.hpp"
 #include "structs.hpp"
-#include "level.hpp"
 
 #include <string>
 using std::string;
@@ -52,7 +52,7 @@ protected:
     game::level::Level* mLevel;
 };
 
-class Player: public game::level::AbstractEntity {
+class Player: public game::level::AbstractEntity, public game::item::InventoryHolder {
 public:
     // Constructor
     Player(Level* l);
