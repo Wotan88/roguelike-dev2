@@ -1,0 +1,8 @@
+{
+    "class": "WeaponMelee",
+    "name": "Short sword",
+    "desc": "Just a rusty sword",
+    "assetName": "melee:shortSword",
+    "dx": 1,
+    "dy": 6
+}

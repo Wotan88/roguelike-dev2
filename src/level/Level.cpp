@@ -45,6 +45,12 @@ game::level::AbstractTile* game::level::Level::operator ()(int x, int y) {
     }
 }
 
+int game::level::Level::getTileId(int x, int y) {
+    if (x < 0 || y < 0 || x >= mWidth || y >= mHeight)
+        return -1;
+    return mData[x + y * mWidth];
+}
+
 void game::level::Level::onPlayerDown(int x, int y) {
     mDsx = x;
     mDsy = y;
@@ -241,5 +247,19 @@ void game::level::Level::onEntityMoved(int sx, int sy, int dx, int dy) {
     }
     if (dx >= 0 && dy >= 0 && dx < mWidth && dy < mHeight) {
         mPresenceFlags[dx + dy * mWidth] |= HAS_ENTITY_FLAG;
+    }
+}
+
+void game::level::Level::removeEntity(AbstractEntity* e) {
+    if (!e)
+        return;
+    if (e->getProperty<string>("class", "") == "Player")
+        return;
+
+    for (auto it = mEntities.begin(); it != mEntities.end(); it++) {
+        if (*it == e) {
+            mEntities.erase(it);
+            return;
+        }
     }
 }

@@ -13,7 +13,7 @@ G++6X := $(shell command -v g++-6 2> /dev/null)
 CXX:=$(if $(G++6X),g++-6,g++)
 LD:=$(if $(G++6X),g++-6,g++)
 CXX_FLAGS:=-std=c++14 --pedantic -O2 -Wall -Iinclude/ -Ilib/include/ `sdl2-config --cflags`
-LD_FLAGS:=`sdl2-config --libs` `pkg-config --libs SDL2_image`
+LD_FLAGS:=`sdl2-config --libs` `pkg-config --libs SDL2_image` `pkg-config --libs zlib`
 
 
 all: build/roguelike

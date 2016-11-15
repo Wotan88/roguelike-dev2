@@ -50,6 +50,7 @@ public:
 
     static constexpr int ACTION_USE = 1;
     static constexpr int ACTION_DROP = 2;
+    static constexpr int ACTION_EQUIP = 2;
 private:
     level::Player* mPlayer;
     int mCheckedItem;

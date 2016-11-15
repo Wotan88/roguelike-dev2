@@ -8,5 +8,6 @@
     "nutrition": 10,
     "useAction": "Eat",
     "useKey": "e",
-    "eatenMessage": "Tasted good"
+    "eatenMessage": "Tasted good",
+    "stackable": true
 }

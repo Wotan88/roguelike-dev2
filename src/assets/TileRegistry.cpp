@@ -22,6 +22,10 @@ int game::tileregistry::nextId() {
     return ++mLastId;
 }
 
+map<string, int>& game::tileregistry::getMappingTable(){
+    return mIdBindings;
+}
+
 void game::tileregistry::bind(game::level::AbstractTile* t) {
     if (!t)
         return;

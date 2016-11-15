@@ -7,6 +7,8 @@
 #include "items/all.hpp"
 
 #include <json.hpp>
+#include <fstream>
+#include <gzstream.hpp>
 
 // Class instantiators
 
@@ -30,6 +32,9 @@ game::item::AbstractItem* game::serialization::instantiateItemClass(
         const string& basename) {
     if (basename == "Food") {
         return new item::FoodItem();
+    }
+    if (basename == "WeaponMelee"){
+        return new item::MeleeWeapon();
     }
     return new item::AbstractItem();
 }
@@ -81,6 +86,7 @@ game::level::AbstractTile* game::serialization::loadTile(
 
     std::ifstream jsonInputStream(filename);
     nlohmann::json jsonData = nlohmann::json::parse(jsonInputStream);
+    jsonInputStream.close();
 
     string classname = "AbstractTile";
     if (!jsonData["class"].is_null()) {
@@ -114,6 +120,7 @@ game::item::AbstractItem* game::serialization::loadItem(
 
     std::ifstream jsonInputStream(filename);
     nlohmann::json jsonData = nlohmann::json::parse(jsonInputStream);
+    jsonInputStream.close();
 
     string classname = "AbstractItem";
     if (!jsonData["class"].is_null()) {
@@ -146,6 +153,7 @@ game::level::AbstractEntity* game::serialization::loadEntity(
 
     std::ifstream jsonInputStream(filename);
     nlohmann::json jsonData = nlohmann::json::parse(jsonInputStream);
+    jsonInputStream.close();
 
     string classname = "AbstractEntity";
     if (!jsonData["class"].is_null()) {
@@ -198,4 +206,57 @@ void game::serialization::loadAllEntities(const string& dirn) {
             entityregistry::bind(t);
         }
     }
+}
+
+// Game data saving/loading
+
+void game::serialization::saveLevel(level::Level* level,
+        const string& filename) {
+    ogzstream out(filename.c_str(), std::ios::out | std::ios::binary);
+
+    // 1. Write signature of format (magic bytes) [4]
+    out.write((const char*) &LEVEL_FORMAT_SIGNATURE, sizeof(int));
+    // 2. Write size of level [8]
+    int lw, lh;
+    lw = level->getWidth();
+    lh = level->getHeight();
+    out.write((const char*) &lw, sizeof(int));
+    out.write((const char*) &lh, sizeof(int));
+    // 3. Write tile mapping table [size of string data + 4n + 4]
+    auto items = game::tileregistry::getMappingTable();
+    int len;
+    len = items.size();
+    out.write((const char*) &len, sizeof(int));
+    for (auto item : items) {
+        len = item.first.length();
+        out.write((const char*) &len, sizeof(int));
+        out.write(item.first.c_str(), item.first.length());
+    }
+
+    // 4. Write tile data [w*h*4]
+    int id;
+    for (int x = 0; x < lw; x++) {
+        for (int y = 0; y < lh; y++) {
+            id = level->getTileId(x, y);
+            out.write((const char*) &id, sizeof(int));
+        }
+    }
+
+    // 5. Write metadata [w*h*4]
+    for (int x = 0; x < lw; x++) {
+        for (int y = 0; y < lh; y++) {
+            id = level->getMeta(x, y);
+            out.write((const char*) &id, sizeof(int));
+        }
+    }
+
+    // 6. Write visibility data [w*h*4]
+    for (int x = 0; x < lw; x++) {
+        for (int y = 0; y < lh; y++) {
+            id = level->getTileVisibility(x, y);
+            out.write((const char*) &id, sizeof(int));
+        }
+    }
+
+    out.close();
 }

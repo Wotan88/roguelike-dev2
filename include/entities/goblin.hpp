@@ -12,7 +12,6 @@ public:
     GoblinEntity(Level* l);
     virtual ~GoblinEntity() {
     }
-    void onAttackedBy(int dmg, AbstractEntity* src) override;
     void onTick(int tickN) override;
 };
 }

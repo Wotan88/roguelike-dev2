@@ -76,6 +76,8 @@ void game::Game::genLevel() {
     g.getSpawnPosition(psx, psy);
     mPlayer->setPosition(psx, psy);
     mCurrentLevel->addEntity(mPlayer);
+
+    mCurrentLevel->spawn(psx + 1, psy + 1, "mob:goblin");
 }
 
 void game::Game::nextDepth() {
@@ -146,8 +148,14 @@ void game::Game::endTurn() {
     }
 
     for (auto e : mCurrentLevel->entities()) {
-        if (e)
-            e->onTick(mTickNumber);
+        if (e) {
+            if (e->getProperty<int>("hp", -1) <= 0
+                    && !e->getProperty<bool>("invincible", false)) {
+                mCurrentLevel->removeEntity(e);
+            } else {
+                e->onTick(mTickNumber);
+            }
+        }
     }
     mTickNumber++;
 
@@ -212,6 +220,7 @@ void game::Game::generatePlayerAndStart(
     mPlayer = new level::Player(mCurrentLevel);
 
     mPlayer->addItem("food:small", 2);
+    mPlayer->addItem("melee:shortSword", 2);
     genLevel();
     mCurrentLevel->update();
     int px, py;
@@ -301,12 +310,19 @@ void game::Game::moveControl(int dx, int dy) {
             endTurn();
         } else {
             if (mPlayer->canAttack(px + dx, py + dy)) {
+                if (!mPlayer->hasItemEquiped(0)) {
+                    messages::push("Can't attack with bare hands");
+                    updateCamera();
+                    return;
+                }
                 LOG(DEBUG)<< "Attack caused player to end turn";
                 // Attack entity
                 level::AbstractEntity* e = mCurrentLevel->getEntityAt(px + dx, py + dy);
                 if (e) {
-                    messages::push("You hit " + e->getProperty<string>("name", ""));
-                    e->onAttackedBy(1, mPlayer);
+                    auto wpn = mPlayer->getEquipedItem(0);
+                    wpn->onAttackWith(mPlayer, e);
+//                    messages::push("You hit " + e->getProperty<string>("name", ""));
+//
                 }
                 // End turn
                 mCurrentLevel->update();

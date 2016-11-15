@@ -1,10 +1,27 @@
 #include "entity.hpp"
 #include "messages.hpp"
 
+/*
+ * 0 - Left hand
+ * 1 - Right hand
+ * 2 - Head
+ * 3 - Body
+ * 4 - Legs
+ * 5 - Boots
+ * 6 - Ring 1
+ * 7 - Ring 2
+ * 8 - Missile weapon
+ * 9 - ???
+ */
+
 game::level::Player::Player(Level* l) :
-        AbstractEntity(l), InventoryHolder(10) {
+        AbstractEntity(l), InventoryHolder(10), EquipmentHolder(10) {
     setProperty<string>("class", "Player");
     setProperty<int>("hp", 20);
+
+    // Equipment slots
+    setEquipmentSlotName(0, "Left hand");
+    setEquipmentSlotName(1, "Right hand");
 }
 
 game::level::Player::~Player() {

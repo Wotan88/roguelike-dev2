@@ -7,10 +7,6 @@ game::level::entity::GoblinEntity::GoblinEntity(Level* l) :
     setProperty<string>("class", "Goblin");
 }
 
-void game::level::entity::GoblinEntity::onAttackedBy(int dmg,
-        AbstractEntity* src) {
-}
-
 void game::level::entity::GoblinEntity::onTick(int n) {
     vector<std::tuple<int, int, int>> movCandidates;
     int ex, ey;

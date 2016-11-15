@@ -12,6 +12,7 @@ int nextId();
 void bind(game::level::AbstractTile* t);
 game::level::AbstractTile* byId(int id);
 game::level::AbstractTile* byName(const std::string& name);
+std::map<string, int>& getMappingTable();
 }
 
 namespace entityregistry {

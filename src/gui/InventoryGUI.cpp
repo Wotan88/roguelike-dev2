@@ -2,6 +2,7 @@
 #include "game.hpp"
 #include "registry.hpp"
 #include "general_utils.hpp"
+#include "messages.hpp"
 
 game::gui::InventoryGUI::InventoryGUI() {
     mPlayer = GP;
@@ -17,15 +18,31 @@ bool game::gui::InventoryGUI::capturesKeyboard() {
 
 void game::gui::InventoryGUI::performAction(int i, int name) {
     auto it = mPlayer->getItem(i);
-    if (it.itemId <= 0)
+    if (!it.item)
         return;
-    game::item::AbstractItem* item = game::itemregistry::byId(it.itemId);
+    game::item::AbstractItem* item = (it.item);
 
     switch (name) {
     case ACTION_USE:
         if (item->onUsed(mPlayer)) {
             mPlayer->updateCount(mCheckedItem, -1);
             G->setGui(nullptr);
+        }
+        return;
+        case ACTION_EQUIP:
+        if (item->isEquipable()) {
+            int slot = item->getProperty<int>("equipSlot", -1);
+            if (slot >= 0) {
+                auto sl = mPlayer->getEquipedItem(slot);
+                if (sl) {
+                    messages::push("Unequip item first.");
+                } else {
+                    messages::push("You equip " + item->getProperty<string>("name", "item"));
+                    mPlayer->setEquipmentItem(slot, item);
+                    mPlayer->setSlot(mCheckedItem, nullptr, 0);
+                }
+                G->setGui(nullptr);
+            }
         }
         return;
     }
@@ -43,7 +60,7 @@ bool game::gui::InventoryGUI::onKeyDown(int sc, int ch) {
         return true;
     }
 
-    if (sc >= SDL_SCANCODE_A && sc <= SDL_SCANCODE_Z) {
+    if (sc >= SDL_SCANCODE_A && sc <= SDL_SCANCODE_Z && mCheckedItem >= 0) {
         int i = (sc - SDL_SCANCODE_A) + 'a';
         auto it = std::find_if(mActions.begin(), mActions.end(), [i](std::tuple<char, int, string>& t)-> bool {
                     return i == std::get<0>(t);
@@ -53,18 +70,23 @@ bool game::gui::InventoryGUI::onKeyDown(int sc, int ch) {
             int actionIndex = std::get<1>(*it);
             performAction(mCheckedItem, actionIndex);
         }
+        return true;
     }
 
     if (sc >= SDL_SCANCODE_A && sc <= SDL_SCANCODE_A + mPlayer->getInventorySize() - 1) {
         int i = sc - SDL_SCANCODE_A;
         item::InventoryItem it = mPlayer->getItem(i);
-        if (it.itemId && it.count) {
-            game::item::AbstractItem* g = game::itemregistry::byId(it.itemId);
+        if (it.item && it.count) {
+            game::item::AbstractItem* g = (it.item);
             mActions.clear();
 
             if (g->isUsable()) {
                 char n = g->getProperty<string>("useKey", "u")[0];
                 mActions.push_back(std::tuple<char, int, string> {n, ACTION_USE, g->getProperty<string>("useAction", "Use")});
+            }
+            if (g->isEquipable()) {
+                char n = g->getProperty<string>("equipKey", "e")[0];
+                mActions.push_back(std::tuple<char, int, string> {n, ACTION_EQUIP, g->getProperty<string>("equipAction", "Equip")});
             }
 
             mCheckedItem = i;
@@ -93,10 +115,10 @@ void game::gui::InventoryGUI::render() {
     for (int i = 0; i < c; i++){
         item = mPlayer->getItem(i);
         s = "[" + std::string(1, 'a' + i) + "] ";
-        if (item.itemId == 0){
+        if (!item.item){
             s += "Empty slot";
         } else {
-            game::item::AbstractItem* i = itemregistry::byId(item.itemId);
+            game::item::AbstractItem* i = (item.item);
 
             n = i->getProperty<string>("name", "noname item");
             if (item.count > 1){
@@ -109,13 +131,33 @@ void game::gui::InventoryGUI::render() {
         r->renderText(6, i + 5, s, 0, 0xCFCFCF);
     }
 
+    // TODO: getEquipmentInventorySize()
+    c = mPlayer->getEquipmentInventorySize();
+
+    for (int i = 0; i < c; i++){
+            item::AbstractItem* it = mPlayer->getEquipedItem(i);
+            s = "[" + std::string(1, '0' + i) + "] " + mPlayer->getEquipmentSlotName(i) + ": ";
+            if (!it){
+                s += "Nothing";
+            } else {
+                n = it->getProperty<string>("name", "noname item");
+                if (item.count > 1){
+                    s += std::to_string(item.count) + " " + it->getProperty<string>("namePlural", n);
+                } else {
+                    s += n;
+                }
+            }
+
+            r->renderText(6, i + 17, s, 0, 0xCFCFCF);
+        }
+
     string usageNotes = game::util::wrap("["+string(1, 'a')+"-"+string(1,'a'+mPlayer->getInventorySize())+"] - Select item, [Esc] - Close inventory", 50);
     int nn = usageNotes.find('\n');
     r->renderText((gfx::SCREEN_WIDTH - (nn == -1 ? usageNotes.length() : nn)) / 2, gfx::SCREEN_HEIGHT - 6, usageNotes, 0, 0xCFCFCF);
 
     if (mCheckedItem != -1){
         game::item::InventoryItem item = mPlayer->getItem(mCheckedItem);
-        game::item::AbstractItem* itemI = itemregistry::byId(item.itemId);
+        game::item::AbstractItem* itemI = (item.item);
 
         if (!itemI){
             LOG(FATAL)<< "itemI == null";

@@ -67,11 +67,13 @@ public:
     void getDownExitPos(int& x, int& y);
     void getUpExitPos(int& x, int& y);
     int getTileVisibility(int x, int y);
+    int getTileId(int x, int y);
     // Sets tile
     void set(int x, int y, const string& name);
     void setMeta(int x, int y, int m);
     void spawn(int x, int y, const string& name);
     void addEntity(AbstractEntity* e);
+    void removeEntity(AbstractEntity* e);
 
     void update();
     void onPlayerUp(int x, int y);

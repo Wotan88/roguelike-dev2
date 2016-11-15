@@ -58,7 +58,7 @@ protected:
 };
 
 // Player entity
-class Player: public game::level::AbstractEntity, public game::item::InventoryHolder {
+class Player: public game::level::AbstractEntity, public game::item::InventoryHolder, public game::item::EquipmentHolder {
 public:
     // Constructor
     Player(Level* l);

@@ -15,9 +15,13 @@ public:
     AbstractItem();
     virtual ~AbstractItem();
 
+    AbstractItem* clone();
+
     virtual bool onUsed(level::AbstractEntity* src);
     virtual bool isUsable();
     virtual bool isEquipable();
+    virtual bool canAttackWith();
+    virtual bool onAttackWith(level::AbstractEntity* src, level::AbstractEntity* target);
 };
 
 }
