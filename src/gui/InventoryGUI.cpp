@@ -60,6 +60,18 @@ bool game::gui::InventoryGUI::onKeyDown(int sc, int ch) {
         return true;
     }
 
+    if (mCheckedItem < 0 && sc >= SDL_SCANCODE_0 && sc <= SDL_SCANCODE_0 + mPlayer->getEquipmentInventorySize() - 1) {
+        int i = sc - SDL_SCANCODE_0;
+        if (mPlayer->hasItemEquiped(i)) {
+            item::AbstractItem* it = mPlayer->getEquipedItem(i);
+            if (mPlayer->addItemI(it, 1)) {
+                LOG(DEBUG)<< "Successfully unequiped";
+                mPlayer->setEquipmentItem(i, 0);
+                G->fullRender();
+            }
+        }
+    }
+
     if (sc >= SDL_SCANCODE_A && sc <= SDL_SCANCODE_Z && mCheckedItem >= 0) {
         int i = (sc - SDL_SCANCODE_A) + 'a';
         auto it = std::find_if(mActions.begin(), mActions.end(), [i](std::tuple<char, int, string>& t)-> bool {

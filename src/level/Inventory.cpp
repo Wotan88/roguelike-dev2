@@ -77,7 +77,8 @@ bool game::item::Inventory::addItem(const string& name, int count) {
 
     LOG(DEBUG)<< "Trying to add " << count << "x" << name;
 
-    for (int i = 0; i < count; i++) {
+    int i = 0;
+    for (i = 0; i < count; i++) {
         if (g->getProperty<bool>("stackable", false)) {
             int slot0 = findSlot(g->getProperty<int>("id", -1));
             if (slot0 != -1) {
@@ -93,6 +94,36 @@ bool game::item::Inventory::addItem(const string& name, int count) {
             continue;
         }
     }
+    if (i == count)
+            return true;
+    return false;
+}
+
+bool game::item::Inventory::addItemI(AbstractItem* g, int count) {
+
+    if (!g)
+        return false;
+
+    LOG(DEBUG)<< "Trying to add " << count << "x" << g->getProperty<string>("name", "");
+
+    int i = 0;
+    for (i = 0; i < count; i++) {
+        if (g->getProperty<bool>("stackable", false)) {
+            int slot0 = findSlot(g->getProperty<int>("id", -1));
+            if (slot0 != -1) {
+                mInternalArray[slot0].count += 1;
+                continue;
+            }
+        }
+        int slot1 = findSlot(0);
+        if (slot1 != -1) {
+            mInternalArray[slot1].item = g;
+            mInternalArray[slot1].count = 1;
+            continue;
+        }
+    }
+    if (i == count)
+        return true;
     return false;
 }
 
@@ -110,6 +141,10 @@ bool game::item::InventoryHolder::addItem(const string& name, int count) {
     return mInventory.addItem(name, count);
 }
 
+bool game::item::InventoryHolder::addItemI(AbstractItem* h, int count) {
+    return mInventory.addItemI(h, count);
+}
+
 int game::item::InventoryHolder::getInventorySize() {
     return mInventory.getSize();
 }
@@ -122,8 +157,8 @@ void game::item::InventoryHolder::updateCount(int i, int delta) {
     mInventory.updateCount(i, delta);
 }
 
-void game::item::InventoryHolder::setSlot(int i, AbstractItem* t, int v){
-    if (!t || v <= 0){
+void game::item::InventoryHolder::setSlot(int i, AbstractItem* t, int v) {
+    if (!t || v <= 0) {
         mInventory.setItem(i, nullptr, 0);
     } else {
         t = t->clone();

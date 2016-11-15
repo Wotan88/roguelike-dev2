@@ -20,6 +20,7 @@ public:
 
     int findSlot(int id);
     bool addItem(const std::string& name, int count = 1);
+    bool addItemI(AbstractItem* i, int count = 1);
     void setSlot(int i, int c, int v);
     void setItem(int i, AbstractItem* t, int v);
     int getSize();
@@ -41,6 +42,7 @@ public:
     InventoryItem& getItem(int i);
     void updateCount(int i, int delta);
     void setSlot(int i, AbstractItem* t, int v);
+    bool addItemI(AbstractItem* i, int count = 1);
 private:
     Inventory mInventory;
 };
