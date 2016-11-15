@@ -22,10 +22,25 @@ game::level::Player::Player(Level* l) :
     // Equipment slots
     setEquipmentSlotName(0, "Left hand");
     setEquipmentSlotName(1, "Right hand");
+    setEquipmentSlotName(2, "Headgear");
+    setEquipmentSlotName(3, "Body armor");
+    setEquipmentSlotName(4, "Leg armor");
+    setEquipmentSlotName(5, "Boots");
+    setEquipmentSlotName(6, "Ring");
+    setEquipmentSlotName(7, "Ring");
+    setEquipmentSlotName(8, "Missile weapon");
+    setEquipmentSlotName(9, "Unnamed slot");
+
+    missileAmmoCount = 0;
+    missileAmmoItem = nullptr;
 }
 
 game::level::Player::~Player() {
 
+}
+
+bool game::level::Player::hasMissileAmmo() {
+    return missileAmmoCount && missileAmmoItem;
 }
 
 bool game::level::Player::onCollideTile(int x, int y) {

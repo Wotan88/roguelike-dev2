@@ -1,5 +1,6 @@
 {
     "assetName": "mob:goblin",
     "class": "Goblin",
-    "hp": 10
+    "hp": 10,
+    "name": "Goblin"
 }

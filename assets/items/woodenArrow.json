@@ -1,0 +1,10 @@
+{
+    "class": "MissileAmmo",
+    "missileType": "arrow",
+    "name": "Wooden arrow",
+    "namePlural": "Wooden arrows",
+    "assetName": "ammo:woodenArrow",
+    "stackable": true,
+    "dx": 1,
+    "dy": 6
+}

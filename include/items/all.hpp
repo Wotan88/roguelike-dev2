@@ -2,4 +2,5 @@
 #define INCLUDE_ITEMS_ALL_HPP_
 #include "food.hpp"
 #include "meleeWeapon.hpp"
+#include "missileAmmo.hpp"
 #endif

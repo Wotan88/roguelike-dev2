@@ -4,6 +4,7 @@
 #include "generators.hpp"
 #include "general_utils.hpp"
 #include "entities/goblin.hpp"
+#include "items/missileAmmo.hpp"
 #include "messages.hpp"
 
 #include <easylogging++.h>
@@ -76,8 +77,6 @@ void game::Game::genLevel() {
     g.getSpawnPosition(psx, psy);
     mPlayer->setPosition(psx, psy);
     mCurrentLevel->addEntity(mPlayer);
-
-    mCurrentLevel->spawn(psx + 1, psy + 1, "mob:goblin");
 }
 
 void game::Game::nextDepth() {
@@ -221,6 +220,7 @@ void game::Game::generatePlayerAndStart(
 
     mPlayer->addItem("food:small", 2);
     mPlayer->addItem("melee:shortSword", 2);
+    mPlayer->addItem("ammo:woodenArrow", 10);
     genLevel();
     mCurrentLevel->update();
     int px, py;
@@ -321,8 +321,6 @@ void game::Game::moveControl(int dx, int dy) {
                 if (e) {
                     auto wpn = mPlayer->getEquipedItem(0);
                     wpn->onAttackWith(mPlayer, e);
-//                    messages::push("You hit " + e->getProperty<string>("name", ""));
-//
                 }
                 // End turn
                 mCurrentLevel->update();
@@ -341,6 +339,20 @@ void game::Game::moveControl(int dx, int dy) {
 }
 
 void game::Game::shootProjectile(int x, int y) {
+    item::AbstractItem* projectileItem = mPlayer->missileAmmoItem;
+    if (projectileItem == nullptr || mPlayer->missileAmmoCount <= 0) {
+        mSelectorX = -1;
+        mSelectorY = -1;
+        mControlMode = 0;
+        messages::push("You don't have any missile ammo");
+        fullRender();
+        return;
+    }
+    mPlayer->missileAmmoCount--;
+    if (mPlayer->missileAmmoCount <= 0) {
+        mPlayer->missileAmmoCount = 0;
+        mPlayer->missileAmmoItem = nullptr;
+    }
     int px, py;
     mPlayer->getPosition(px, py);
 
@@ -366,6 +378,8 @@ void game::Game::shootProjectile(int x, int y) {
 
         level::AbstractEntity* e = mCurrentLevel->getEntityAt(ix, iy);
         if (e) { // We hit an entity
+            static_cast<item::MissileAmmo*>(projectileItem)->onHitEntity(
+                    mPlayer, e, 0);
             break;
         }
 
@@ -385,7 +399,8 @@ void game::Game::shootProjectile(int x, int y) {
     }
 
     mControlMode = 0;
-    fullRender();
+
+    endTurn();
 }
 
 void game::Game::gameControl(SDL_Keysym* k) {
@@ -406,6 +421,16 @@ void game::Game::gameControl(SDL_Keysym* k) {
         fullRender();
         return;
     }
+    if (scancode == SDL_SCANCODE_ESCAPE) {
+        if (mControlMode == 1) {
+            mControlMode = 0;
+            mSelectorX = -1;
+            mSelectorY = -1;
+        }
+        fullRender();
+        return;
+    }
+
     if (ch == SDLK_GREATER) {
         LOG(DEBUG)<< "Downstairs key";
         level::AbstractTile* t = (*mCurrentLevel)(px, py);
@@ -428,6 +453,11 @@ void game::Game::gameControl(SDL_Keysym* k) {
 
     if (scancode == SDL_SCANCODE_T) {
         if (mControlMode == 0) {
+            if (mPlayer->missileAmmoCount == 0 || !mPlayer->missileAmmoItem) {
+                messages::push("You don't have any missile ammo");
+                fullRender();
+                return;
+            }
             mPlayer->getPosition(mSelectorX, mSelectorY);
             mControlMode = 1;
         } else {

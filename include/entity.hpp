@@ -68,7 +68,11 @@ public:
     // Events
     bool onCollideTile(int x, int y) override;
     void onAttackedBy(int dmg, AbstractEntity* src) override;
-private:
+
+    bool hasMissileAmmo();
+
+    item::AbstractItem* missileAmmoItem;
+    int missileAmmoCount;
 };
 
 }

@@ -3,6 +3,7 @@
 
 game::item::MeleeWeapon::MeleeWeapon() {
     setProperty<int>("equipSlot", 0);
+    setProperty<string>("class", "WeaponMelee");
 }
 
 game::item::MeleeWeapon::~MeleeWeapon() {

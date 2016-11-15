@@ -36,6 +36,8 @@ game::item::AbstractItem* game::serialization::instantiateItemClass(
     if (basename == "WeaponMelee"){
         return new item::MeleeWeapon();
     }
+    if (basename == "MissileAmmo")
+        return new item::MissileAmmo();
     return new item::AbstractItem();
 }
 
