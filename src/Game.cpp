@@ -167,6 +167,7 @@ void game::Game::fullRender() {
     if (mState == STATE_PLAYING) {
         mRenderer->renderLevel(0, 0, game::gfx::SCREEN_WIDTH - 25,
                 game::gfx::SCREEN_HEIGHT);
+        mRenderer->renderLoot();
         mRenderer->renderEntities();
         if (mControlMode == 1) {
             int sx, sy;
@@ -368,7 +369,8 @@ void game::Game::shootProjectile(int x, int y) {
     fx = px + 0.5;
     fy = py + 0.5;
     int ix, iy;
-
+    int prx = 0, pry = 0;
+    int wasted = 0;
     for (int i = 0; i < dist; i++) {
         fx += dx;
         fy += dy;
@@ -380,14 +382,21 @@ void game::Game::shootProjectile(int x, int y) {
         if (e) { // We hit an entity
             static_cast<item::MissileAmmo*>(projectileItem)->onHitEntity(
                     mPlayer, e, 0);
+            wasted = 1;
             break;
         }
 
         level::AbstractTile* t = (*mCurrentLevel)(ix, iy);
 
         if (t && t->isCollidable(ix, iy, mCurrentLevel)) { // We hit collidable tile
+            static_cast<item::MissileAmmo*>(projectileItem)->onHitTile(mPlayer,
+                    prx, pry);
+            wasted = 1;
             break;
         }
+
+        prx = ix;
+        pry = iy;
 
         mCamera->translatePoint(ix, iy, ix, iy);
 
@@ -396,6 +405,11 @@ void game::Game::shootProjectile(int x, int y) {
         mRenderer->renderAll();
 
         SDL_Delay(50);
+    }
+
+    if (!wasted) {
+        static_cast<item::MissileAmmo*>(projectileItem)->onHitTile(mPlayer, prx,
+                pry);
     }
 
     mControlMode = 0;

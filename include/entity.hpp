@@ -37,6 +37,8 @@ public:
     virtual bool canAttack(int dx, int dy);
     bool checkMove(int dx, int dy);
 
+    Level* level();
+
     // Position
     int x();
     int y();

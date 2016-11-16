@@ -35,3 +35,7 @@ bool game::item::MissileAmmo::onHitEntity(level::AbstractEntity* src,
     }
     return true;
 }
+
+bool game::item::MissileAmmo::onHitTile(level::AbstractEntity* src, int x, int y){
+    src->level()->setLootAt(x, y, this, 1);
+}

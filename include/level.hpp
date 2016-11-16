@@ -2,6 +2,7 @@
 #define INCLUDE_LEVEL_HPP_
 #include "core.hpp"
 #include "structs.hpp"
+#include "inventory.hpp"
 
 #include <string>
 #include <vector>
@@ -80,6 +81,11 @@ public:
     void onPlayerDown(int x, int y);
     void onEntityMoved(int sx, int sy, int dx, int dy);
 
+    item::InventoryItem* getLootAt(int x, int y);
+    void newLootAt(int x, int y, const string& name, int cnt = 1);
+    void setLootAt(int x, int y, item::AbstractItem* i, int cnt);
+    void updateLootCount(int x, int y, int cnt);
+
     const vector<game::level::AbstractEntity*>& entities();
 
     static constexpr int HAS_ENTITY_FLAG = 1;
@@ -97,6 +103,7 @@ private:
     vector<AbstractEntity*> mEntities;
     // Object presence flags
     vector<int> mPresenceFlags;
+    vector<item::InventoryItem*> mLoot;
     // Dijkstra map (distances from player to point)
     vector<int> mDijkstraMap;
     vector<int> mMetadata;

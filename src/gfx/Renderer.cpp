@@ -250,6 +250,53 @@ void game::gfx::Renderer::renderGui() {
     gui->render();
 }
 
+void game::gfx::Renderer::renderLoot() {
+    TIMED_FUNC(timerObj);
+    game::level::Camera* cam = GC;
+    game::level::Level* level = GL;
+
+    int tx, ty;
+
+    int camx, camy;
+    cam->getPosition(camx, camy);
+
+    int cx, cy;
+    cx = camx;
+    cy = camy;
+    int ex, ey;
+    ex = camx + gfx::SCREEN_WIDTH - 25;
+    ey = camy + gfx::SCREEN_HEIGHT - 1;
+
+    // Level bounds constraint
+    cx = std::max(cx, 0);
+    cy = std::max(cy, 0);
+    ex = std::min(ex, level->getWidth() - 1);
+    ey = std::min(ey, level->getHeight() - 1);
+
+    if (mRenderMode == 0) {
+        for (int y = cy; y <= ey; y++) {
+            for (int x = cx; x <= ex; x++) {
+                auto loot = level->getLootAt(x, y);
+                if (!loot)
+                    continue;
+
+                int vis = level->getTileVisibility(x, y);
+                if (!vis)
+                    continue;
+
+                cam->translatePoint(x, y, tx, ty);
+                if (tx < 0 || ty < 0 || tx >= SCREEN_WIDTH
+                        || ty >= SCREEN_HEIGHT)
+                    continue;
+
+                put(tx, ty, loot->item->getProperty<int>("displayIcon", '?'),
+                        loot->item->getProperty<int>("displayColor", 0xCCFFBB),
+                        -1);
+            }
+        }
+    }
+}
+
 void game::gfx::Renderer::renderLevel(int sx, int sy, int dx, int dy) {
     TIMED_FUNC(timerObj);
     game::level::Camera* cam = GC;

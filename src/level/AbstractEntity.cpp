@@ -123,3 +123,7 @@ void game::level::AbstractEntity::updateAttribute(const string& name,
 int game::level::AbstractEntity::getAttribute(const string& name) {
     return getProperty<int>("attr_" + name, -1);
 }
+
+game::level::Level* game::level::AbstractEntity::level(){
+    return mLevel;
+}

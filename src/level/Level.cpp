@@ -11,6 +11,9 @@ game::level::Level::Level(int width, int height) :
     mDijkstraMap = vector<int>(width * height);
     mMetadata = vector<int>(width * height);
     mVisibility = vector<int>(width * height);
+    mLoot = vector<item::InventoryItem*>(width * height);
+    for (int i = 0; i < width * height; i++)
+        mLoot[i] = nullptr;
     mLastPlayerX = -1;
     mLastPlayerY = -1;
     mPlayer = nullptr;
@@ -261,5 +264,32 @@ void game::level::Level::removeEntity(AbstractEntity* e) {
             mEntities.erase(it);
             return;
         }
+    }
+}
+
+game::item::InventoryItem* game::level::Level::getLootAt(int x, int y){
+    return mLoot[x + y * mWidth];
+}
+
+void game::level::Level::setLootAt(int x, int y, item::AbstractItem* i, int cnt){
+    delete mLoot[x + y * mWidth];
+    mLoot[x + y * mWidth] = new item::InventoryItem { i, cnt };
+}
+
+void game::level::Level::updateLootCount(int x, int y, int cnt){
+    if (cnt == 0){
+        mLoot[x + y * mWidth] = nullptr;
+        return;
+    }
+    if (mLoot[x + y * mWidth]){
+        mLoot[x + y * mWidth]->count = cnt;
+    }
+}
+
+void game::level::Level::newLootAt(int x, int y, const string& name, int cnt){
+    auto it = game::itemregistry::byName(name);
+    if (it){
+        it = it->clone();
+        setLootAt(x, y, it, cnt);
     }
 }

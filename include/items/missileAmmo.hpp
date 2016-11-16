@@ -11,7 +11,9 @@ public:
     virtual ~MissileAmmo();
 
     bool isEquipable() override;
-    bool onHitEntity(level::AbstractEntity* src, level::AbstractEntity* target, int weaponBonus);
+    bool onHitEntity(level::AbstractEntity* src, level::AbstractEntity* target,
+            int weaponBonus);
+    bool onHitTile(level::AbstractEntity* src, int x, int y);
 };
 
 }

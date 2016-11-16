@@ -104,6 +104,7 @@ public:
     void renderEntitiesAndAdjacent(int dx);
     void renderEntities();
     void renderGui();
+    void renderLoot();
 
     // Character drawing functions
     int renderText(int x, int y, const string& str, int fg, int bg);
